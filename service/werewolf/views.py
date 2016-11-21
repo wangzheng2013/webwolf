@@ -1,6 +1,6 @@
 from django.shortcuts import render
 import datetime
-from django.http import HttpResponse
+from django.http import *
 
 # Create your views here.
 def sayHello(request):
@@ -8,3 +8,6 @@ def sayHello(request):
     current_time = datetime.datetime.now()
     html = '<html><head></head><body><h1> %s </h1><p> %s </p></body></html>' % (s, current_time)
     return HttpResponse(html)
+
+def Home(request):
+    return render(request, "home.html")
