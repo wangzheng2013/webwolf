@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+    <title>SignUpForm</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <form action = '/signup/' method = 'post'>
+        {% csrf_token %}
+        <input type = 'text' name = 'username'/>
+        <input type = 'password' name = 'password'/>
+        <input type = 'submit' name = 'submit'/>
+        </form>
+    <p> {{ username }} </p>
+</body>
+</html>
