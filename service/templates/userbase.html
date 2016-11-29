@@ -2,9 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
 </head>
 <body>
-
+{% block userbase_content %}
+    <div>
+        username : {{ username }}
+        </div>
+{% endblock %}
+{% block room_description %}
+{% endblock %}
 </body>
 </html>

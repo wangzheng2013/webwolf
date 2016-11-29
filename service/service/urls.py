@@ -16,9 +16,17 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from werewolf.views import *
+from werewolf.views_SignIO import *
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'home/', Home),
-    url(r'login/', Login),
+    url(r'^home/$', Home),
+    url(r'^signin/$', signin),
+    url(r'^room/$', room),
+    # userBase
+    url(r'^userbase/$', userbase),
+    # sign IO
+    url(r'^test/$', test),
+    url(r'^signup/$', signup)
 ]
