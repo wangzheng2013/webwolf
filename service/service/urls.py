@@ -19,6 +19,6 @@ from werewolf.views import *
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^student/', sayHello),
-    url(r'home/', Home)
+    url(r'home/', Home),
+    url(r'login/', Login),
 ]

@@ -9,7 +9,7 @@ class User(models.Model):
     email = models.EmailField()
     nickname = models.CharField(max_length=20)
     age = models.SmallIntegerField(default=0)
-    gender = models.CharField(choices=(('Male', '男'), ('Female', '女'), ('Unknown', '保密'),), max_length=8, default='Unknown')
+    gender = models.CharField(choices=(('Male', 'man'), ('Female', 'woman'), ('Unknown', 'secret'),), max_length=8, default='Unknown')
     introduction = models.TextField(max_length=200, blank=True)
     credit = models.IntegerField(default=0)
     phone = models.BigIntegerField(default=0)
