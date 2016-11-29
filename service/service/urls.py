@@ -20,7 +20,6 @@ from werewolf.views_SignIO import *
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'home/', Home),
     url(r'^home/$', Home),
     url(r'^signin/$', signin),
     url(r'^room/$', room),
