@@ -11,9 +11,3 @@ def signin(request):
 
 def room(request):
     return render(request, "room.html")
-
-def userbase(request):
-    #username = request.get('username')
-    username = 'waterkid'
-    Context = {'username' : username}
-    return render(request, "userbase.html", Context)

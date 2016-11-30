@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.core.context_processors import csrf
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib import auth
 
 
 class userInfoForm(forms.Form):
@@ -43,3 +44,23 @@ def signup(request):
                 message = username + r'注册失败，用户名已存在'.decode('utf-8')
         return render(request, 'account/signup.html', locals())
     return render(request, 'account/signup.html', locals())
+
+def userbase(request):
+    #username = request.get('username')
+    username = request.user.username
+    return render(request, "userbase.html", locals())
+
+def logout(request):
+    response = request.META.get('HTTP_REFERER', '/')
+    auth.logout(request)
+    return HttpResponseRedirect(response)
+
+def login(request):
+    response = request.META.get('HTTP_REFERER', '/')
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = auth.authenticate(username=username, password=password)
+        if user is not None and user.is_active:
+            auth.login(request, user)
+    return HttpResponseRedirect(response)

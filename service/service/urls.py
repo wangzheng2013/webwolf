@@ -25,7 +25,9 @@ urlpatterns = [
     url(r'^room/$', room),
     # userBase
     url(r'^userbase/$', userbase),
-    # sign IO
+    # sign/log IO
     url(r'^test/$', test),
+    url(r'^logout/$', logout),
+    url(r'^login/$', login),
     url(r'^signup/$', signup)
 ]

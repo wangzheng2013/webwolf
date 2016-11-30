@@ -7,7 +7,22 @@
 {% block userbase_content %}
     <div>
         username : {{ username }}
+
+        {% if not request.user.is_authenticated %}
+        <form method="post" action="/login/">
+            {% csrf_token %}
+            用户名：<input type = 'text' name = 'username'/>
+            密码：<input type = 'password' name = 'password'/>
+            <input type = submit value="login" name="login">
+            </form>
+        {% else %}
+        <form method="post" action="/logout/">
+            {% csrf_token %}
+            <input type = submit value="logout" name="logout">
+            </form>
+        {% endif %}
         </div>
+
 {% endblock %}
 {% block room_description %}
 {% endblock %}
