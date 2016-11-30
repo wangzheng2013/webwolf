@@ -1,2 +1,3 @@
-/service/service/settings.py
+.idea/.idea/webwolf.iml
+service/service/settings.py
 *.pyc
