@@ -2,12 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+     <link type = "text/css" href = "/static/css/bootstrap.min.css" rel = "stylesheet">
+    <style>
+        body{ background-image:url(/static/images/background.jpg);}
+        #title{ background-color: white}
+    </style>
 </head>
 <body>
 {% block userbase_content %}
-    <div>
+    <div id="title">
         username : {{ username }}
-
         {% if not request.user.is_authenticated %}
         <form method="post" action="/login/">
             {% csrf_token %}
@@ -22,7 +26,6 @@
             </form>
         {% endif %}
         </div>
-
 {% endblock %}
 {% block room_description %}
 {% endblock %}
