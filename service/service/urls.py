@@ -17,11 +17,12 @@ from django.conf.urls import url
 from django.contrib import admin
 from werewolf.views import *
 from werewolf.views_SignIO import *
+from werewolf.view_room import *
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^home/$', Home),
-    url(r'^signin/$', signin),
+    # room
     url(r'^room/$', room),
     # userBase
     url(r'^userbase/$', userbase),
