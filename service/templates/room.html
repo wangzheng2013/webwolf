@@ -1,6 +1,12 @@
 {% extends 'userbase.html' %}
+    {% block css %}
+        .test{color: white}
+    {% endblock %}
 {% block room_description %}
-    <div>
+    <div class="test">
         room number : {{ roomnum}}
+    </div>
+    <div id="chatroom">
+        
     </div>
 {% endblock %}

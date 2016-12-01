@@ -5,27 +5,33 @@
      <link type = "text/css" href = "/static/css/bootstrap.min.css" rel = "stylesheet">
     <style>
         body{ background-image:url(/static/images/background.jpg);}
-        #title{ background-color: white}
+        #title{padding:6px;font-family: 微软雅黑;height: 80px;}
+        .title_label{color: white}
+        {% block css %}{% endblock %}
     </style>
 </head>
 <body>
 {% block userbase_content %}
     <div id="title">
-        username : {{ username }}
         {% if not request.user.is_authenticated %}
-        <form method="post" action="/login/">
+        <form method="post" action="/login/" >
             {% csrf_token %}
-            用户名：<input type = 'text' name = 'username'/>
-            密码：<input type = 'password' name = 'password'/>
-            <input type = submit value="login" name="login">
-            </form>
+            <label class="title_label">用户名：</label>
+            <input type = 'text' name = 'username'/>
+            <label class="title_label">密码：</label>
+            <input type = 'password' name = 'password'/>
+            <input type = submit value="login" name="login" class="btn btn-info btn-sm">
+        </form>
         {% else %}
+        <div style="float: left;padding-right: 10px"><p class="title_label">欢迎：{{ username }}</p></div>
+        <div style="float: left">
         <form method="post" action="/logout/">
             {% csrf_token %}
-            <input type = submit value="logout" name="logout">
+            <input type = submit value="logout" name="logout" class="btn btn-info btn-xs">
             </form>
-        {% endif %}
         </div>
+        {% endif %}
+    </div>
 {% endblock %}
 {% block room_description %}
 {% endblock %}
