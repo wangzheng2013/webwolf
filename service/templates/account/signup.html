@@ -3,12 +3,15 @@
     <meta charset="UTF-8">
     <link type = "text/css" href = "/static/css/bootstrap.min.css" rel = "stylesheet">
     <style>
-        body{ background-image:url(/static/images/background.jpg);}
+        #Background{position:absolute; width:100%; height:100%; z-index:-1}
         #my_body{  width:400px;height:300px;margin: 0 auto;padding-top: 100px; color: white}
         #info{font-size: 20px}
     </style>
 </head>
 <body>
+<div id="Background">
+<img src="/static/images/background.jpg" height="100%" width="100%"/>
+</div>
     <div id="my_body">
         <p id="info"> {{ message }}</p>
         <form action = '/signup/' method = 'post'>
