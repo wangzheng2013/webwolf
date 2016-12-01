@@ -1,6 +1,7 @@
-{% extends 'userbase.html' %}
 <!-- chat功能的实验，不需美化 -->
-{% block content %}
+<html>
+<body>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
     <div id="chatroom">
         <div class = "list-group-item">
             {% for chat in chats %}
@@ -11,4 +12,32 @@
             {% endfor %}
             </div>
     </div>
-{% endblock %}
+</body>
+<script>
+   /* $(function(){
+       updateMsg();
+        $('#chatroom').submit(function(){
+            $.post("./post/",
+                    $('#chatroom').serialize(),
+                    function(data){
+                        $('#cont')
+                    }
+            );
+            return false;
+        });
+    });*/
+function updateMsg(){
+    $.post(
+        "/get_chat/",
+        {
+            last_chat_id: $(".chat_id").last().val()
+        },
+        function(data){
+            $('.list-group-item').append(data);
+        }
+    );
+    setTimeout("updateMsg()", 3000);
+}
+    updateMsg();
+</script>
+</html>

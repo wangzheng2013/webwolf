@@ -22,8 +22,11 @@
         </div>
         <div id="chat-info">
             <div class="info-text">
-                <span class="other-user-name">银色子弹:</span>
-                <span class="other-user-text">你们好</span>
+                {% for chat in chats %}
+                <span class="other-user-name">{{chat.sender}}:</span>
+                <span class="other-user-text">{{chat.content}}</span>
+                <br>
+                {% endfor %}
             </div>
         </div>
         <textarea id="chat-input" class="form-control"></textarea>
