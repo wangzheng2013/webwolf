@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^home/$', Home),
     # room
     url(r'^room/$', room),
+    url(r'^chat/$', chat),
     # userBase
     url(r'^userbase/$', userbase),
     # sign/log IO

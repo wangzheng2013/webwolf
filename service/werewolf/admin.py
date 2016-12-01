@@ -1,12 +1,7 @@
 from django.contrib import admin
-
-# Register your models here.
-
-from werewolf.models import *
-
+from models import Chat
 
 class userAdmin(admin.ModelAdmin):
     list_display = ('id', 'username', 'password', 'email', 'nickname', 'age', 'gender', 'introduction', 'credit')
 
-admin.site.register(User, userAdmin)
-admin.site.register(Contact)
+admin.site.register(Chat)
