@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
      <link type = "text/css" href = "/static/css/bootstrap.min.css" rel = "stylesheet">
+    {% block scriptsrc %}{% endblock %}
     <style>
         #Background{position:absolute; width:100%; height:100%; z-index:-1}
-        #title{padding:6px;font-family: 微软雅黑;height: 80px;}
+        #title{position: absolute;height: 10%;padding:6px;font-family: 微软雅黑;}
         .title_label{color: white}
         {% block css %}{% endblock %}
     </style>
@@ -39,4 +40,7 @@
 {% block room_description %}
 {% endblock %}
 </body>
+<script>
+    {% block js %}{% endblock %}
+</script>
 </html>

@@ -4,4 +4,4 @@ from django.http import HttpResponse,HttpResponseRedirect
 
 
 def Home(request):
-    return render(request, "home.html")
+    return render(request, "game.html")

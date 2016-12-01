@@ -1,12 +1,52 @@
 {% extends 'userbase.html' %}
     {% block css %}
-        .test{color: white}
+        #chatroom{position: absolute;left:3%;top: 10%;width: 40%;height: 60%;opacity: 0.9;}
+        #chat-heading{background-color:#475632}
+        #chat-body{background-color:green;position:relative;float:left;width:25%;height:300px;overflow:auto}
+        #chat-info{background-color:black;position;relative;float:right;width: 75%;height: 300px;overflow: auto;}
+        #chat-input{position:relative;float:left;width: 80%; margin-top:10px}
+        #chat-button{position;relative;float:right;margin:12px;}
+        .user-list{}
+        .other-user-name{color:white}
+        .other-user-text{color:white}
+        .word-common{color:white}
+        #settings{position: absolute;left:50%;top: 10%;width: 40%;height: 60%;opacity: 0.9;}
     {% endblock %}
 {% block room_description %}
-    <div class="test">
-        room number : {{ roomnum}}
-    </div>
     <div id="chatroom">
-
+        <div id="chat-heading">
+            <span class="word-common">房间人数：{{ roomnum}}</span>
+        </div>
+        <div id="chat-body">
+            <div class="user-list"><p class="other-user-name">银色子弹</p></div>
+        </div>
+        <div id="chat-info">
+            <div class="info-text">
+                <span class="other-user-name">银色子弹:</span>
+                <span class="other-user-text">你们好</span>
+            </div>
+        </div>
+        <textarea id="chat-input" class="form-control"></textarea>
+        <input id="chat-button" class="btn btn-info btn-lg" type = 'submit' name = 'submit'value="发送"/>
     </div>
+    <div id="settings">
+        <p class="word-common">房间配置</p>
+        <form action="" method="get">
+            <p class="word-common">神民阵营</p>
+            <label class="word-common"><input name="god" type="checkbox" value="seer" />预言家</label>
+            <label class="word-common"><input name="god" type="checkbox" value="witch" />女巫 </label>
+            <label class="word-common"><input name="god" type="checkbox" value="hunter" />猎人</label>
+            <label class="word-common"><input name="god" type="checkbox" value="idiot" />白痴 </label>
+            <p class="word-common">狼人阵营</p>
+            <label class="word-common"><input name="god" type="checkbox" value="idiot" />白狼 </label>
+            <p class="word-common">普通狼人数量</p>
+            <select></select>
+            <div>
+                <input class="btn btn-info" type = 'submit' name = 'setting' value="设置"/>
+                <input class="btn btn-info" type = 'submit' name = 'setting' value="准备"/>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+{% block js %}
 {% endblock %}
