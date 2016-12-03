@@ -11,6 +11,5 @@ class Chat(models.Model):
     gameId = models.IntegerField(default=0)
     content = models.TextField()
     time = models.DateTimeField(auto_now_add=True, null=True)
-    def __unicode__(self):
-        return u'%s' % self.content
-
+    def __str__(self):
+        return self.content

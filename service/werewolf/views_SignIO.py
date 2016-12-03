@@ -33,7 +33,7 @@ def signup(request):
         return HttpResponseRedirect('/signup/?states='+states+'&username=' + username)
     if request.method == 'GET':
         states = request.GET.get('states')
-        message = r'欢迎注册'
+        message = r'欢迎注册'.decode('utf-8')
         if states != None:
             username = request.GET.get('username')
             if states == 'success':

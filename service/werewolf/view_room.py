@@ -27,3 +27,14 @@ def get_chat(request):
         return render(request, 'chat_list_item.html', {'chats': chats})
     else:
         raise Http404
+
+def post_chat(request):
+    if request.method == 'POST':
+        response = request.META.get('HTTP_REFERER', '/')
+        chat = Chat()
+        chat.content = request.POST.get('chat_content')
+        chat.sender = request.user
+        chat.save()
+        return HttpResponseRedirect(response)
+    else:
+        raise Http404
