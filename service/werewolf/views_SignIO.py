@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.http import *
 from django.shortcuts import render
-from django.core.context_processors import csrf
+from django.template.context_processors import csrf
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib import auth
@@ -25,7 +25,7 @@ def signup(request):
         if len(User.objects.filter(username=username)) > 0:
             states = 'exist'
         if states == 'success':
-            user= User()
+            user = User()
             user.username = username
             user.set_password(password)
             user.email = ''
