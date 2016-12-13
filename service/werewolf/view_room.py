@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.http import *
 from django.shortcuts import render
-<<<<<<< HEAD
 from django.template.context_processors import csrf
-=======
-from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
->>>>>>> f341406f1e2080370a9a22a1cebf1a4ba4eb129f
 from django import forms
 from models import Chat
 

@@ -10,6 +10,7 @@
         .other-user-name{color:white}
         .other-user-text{color:white}
         .word-common{color:white}
+        .list-group-item{overflow:auto}
         #settings{position: absolute;left:50%;top: 10%;width: 40%;height: 60%;opacity: 0.9;}
     {% endblock %}
 {% block content %}
@@ -21,8 +22,8 @@
         <div id="chat-body">
             <div class="user-list"><p class="other-user-name">银色子弹</p></div>
         </div>
-
-        <div class = "list-group-item">
+        <div id="chat-info">
+            <div class = "list-group-item">
             {% for chat in chats %}
             <h4 class="list-group-item-heading">{{chat.sender}}:{{chat.content}}</h4>
             <p class="list-group-item-text">{{chat.time}}</p>
@@ -30,10 +31,11 @@
             <br>
             {% endfor %}
             </div>
+        </div>
         <form method="post" action="/post_chat/">
             {% csrf_token %}
             <textarea id="chat-input" class="form-control" name = 'chat_content'></textarea>
-            <input id="chat-button" class="btn btn-info btn-lg" type = 'submit' name = 'submit'value="发送"/>
+            <input id="chat-button" class="btn btn-info btn-lg" type = 'submit' name = 'submit' value="发送"/>
             </form>
     </div>
     <div id="settings">
