@@ -31,6 +31,7 @@ class werewolf_character():
 
     character = CHARACTER.NULL
     alive = True
+    death_noticed = True
     def __init__(self, character):
         self.alive = True
         self.character = character
@@ -96,6 +97,7 @@ class werewolf_game():
         """角色死亡，触发死亡技能等"""
         # FLAG 参数为 死亡状态 参照 werewolf_character.DEATH
         self.character[index].alive = False
+        self.character[index].death_noticed = False
         if (self.character[index].isHunter()):
             # 猎人死亡
             if flag != werewolf_character.DEATH.POISONED_BY_WITCH:
@@ -123,9 +125,11 @@ class werewolf_game():
                 countG = countG + 1
             if (self.character[i].isVilleger()):
                 countV = countV + 1
-        if (countW == 0 or countV == 0 or countG == 0):
-            return True # 屠边结束
-        return False
+        if (countV == 0 or countG == 0):
+            return 1 # 屠边结束， 狼人获胜
+        if (countW == 0):
+            return 2 # 游戏结束， 好人获胜
+        return 0
 
     def show(self):
         """ 展示游戏状态 """
@@ -220,18 +224,21 @@ class werewolf_game():
         self.witch()
 
     def GoThroughDay(self):
-        if (self.isFinished()):
+        if (self.isFinished() != 0):
             return
         """ 白天轮转 """
         if (self.__day == 1):
             # 警上竞选
             join_in = [] # 0 警下 1 警上 2 退水
+            self.log.addLog("joining in : ")
             for i in range(self.__num):
                 join_in.append(randint(0, 1))
+                if join_in[-1] == 1:
+                    self.log.addLog("%dth player joining in"% i)
             first = randint(0, self.__num - 1)
             if (randint(0, 1) == 0):
                 # 顺时针发言
-                self.log.addLog("%dth player started to make a speech(clockwise)" % first)
+                self.log.addLog("God : %dth player started to make a speech(clockwise)" % first)
                 for i in range(self.__num):
                     index = (i + first) % self.__num
                     if join_in[index] == 1:
@@ -240,9 +247,9 @@ class werewolf_game():
 
             else:
                 # 逆时针发言
-                self.log.addLog("%dth player started to make a speech(anticlockwise)" % first)
+                self.log.addLog("God : %dth player started to make a speech(anticlockwise)" % first)
                 for i in range(self.__num):
-                    index = (i + self.__num - first) % self.__num
+                    index = (self.__num + first - i) % self.__num
                     if join_in[index] == 1:
                         # 上警了
                         self.log.addLog("%dth player made a speech" % index)
@@ -257,13 +264,16 @@ class werewolf_game():
                 # 竞选， 警徽
                 maxn = 0
                 for i in range(self.__num):
+                    # 投票
+                    if join_in[i] != 0:
+                        continue
                     w = randint(0, self.__num - 1)
                     while (join_in[w] != 1):
                         w = randint(0, self.__num - 1)
                     self.log.addLog("%dth player choose %dth player"%(i, w))
                     tmp[w] = tmp[w] + 1
-                    if tmp > maxn:
-                        maxn = tmp
+                    if tmp[w] > maxn:
+                        maxn = tmp[w]
 
                 # 对最大票数的人数进行统计
                 wnum = 0
@@ -271,13 +281,14 @@ class werewolf_game():
                     if tmp[j] == maxn:
                         wnum = wnum + 1
                         self.__Police = j
+                self.log.addLog(u"最大票数共%d人"% wnum)
                 if wnum == 1:
                     # 只有一个警长，顺利竞选完毕
-                    self.log.addLog("%dth player to be a police"%self.__Police)
+                    self.log.addLog(u"God : %d号玩家当选警长"%self.__Police)
 
                 if wnum > 1:
                     # 平票
-                    self.log.addLog("REJUGHE")
+                    self.log.addLog("God : REJUDGE")
                     for j in range(self.__num):
                         if (tmp[j] != maxn) and (join_in[j] == 1):
                             join_in[j] = 2
@@ -299,26 +310,40 @@ class werewolf_game():
                             self.__Police = j
                     if wnum == 1:
                         # 只有一个警长，顺利竞选完毕
-                        self.log.addLog("%dth player to be a police"%self.__Police)
+                        self.log.addLog(u"God : %d号玩家当选警长"%self.__Police)
                     else:
                         # 警徽流失
-                        self.log.addLog(u"没有警徽")
+                        self.log.addLog(u"God : 没有警徽")
                         self.__Police = -1
             else:
-                self.log.addLog(u"没有警徽")
+                self.log.addLog(u"God : 没有警徽")
         # 宣布昨夜情况
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         self.log.addLog('day %d' % self.__day)
+        minn_death = -1
+        for i in range(self.__num):
+            if (not self.character[i].death_noticed) and (not self.character[i].alive):
+                self.log.addLog(u'God : 昨夜%d号玩家死亡' % i)
+                if self.__day == 1:
+                    self.log.addLog("%dth player made a speech" % i)
+                self.character[i].death_noticed = True
+                if (minn_death == -1):
+                    minn_death = i
+        if minn_death == -1:
+            self.log.addLog(u'God : 昨夜平安夜')
+        if self.isFinished() == 1:
+            self.log.addLog(u'God : 游戏结束， 狼人获胜')
+        if self.isFinished() == 2:
+            self.log.addLog(u'God : 游戏结束， 好人获胜')
+
         first = 0
         if self.__Police != -1:
             first = (self.__Police + 1) % self.__num
         else:
-            for i in range(self.__num):
-                if not self.character[i].alive:
-                    first = (i + 1) % self.__num
+            first = (minn_death + 1) % self.__num
         for i in range(self.__num):
-            if self.character[i].alive:
-                self.log.addLog("%dth player made a speech" % ((first + i) % self.__num))
+            index = (first + i) % self.__num
+            if self.character[index].alive:
+                self.log.addLog("%dth player made a speech" % index)
 
         killPlayer = randint(0, 11)
         while (not self.character[killPlayer].alive):
