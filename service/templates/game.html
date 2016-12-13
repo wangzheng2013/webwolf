@@ -3,8 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <title>Game start!</title>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+    <link type = "text/css" href = "/static/css/bootstrap.min.css" rel = "stylesheet">
+    <style>
+        #Game-info{position:relative;float:left;width:25%}
+        #Game-info-1{height: 136px;overflow: auto}
+        #Game-info-2{height: 100px;overflow: auto}
+        #Game-info-3{height: 160px;overflow: auto}
+        #Main{position:relative;float:left;width: 50%}
+        #Self-info{position:relative;float:left;width: 25%}
+        #Self-info-1{height: 280px;overflow: auto}
+        #Self-info-2{height: 180px;overflow: auto}
+        #Id-1{position: relative;float: left;width: 50%}
+        #Id-2{position: relative;float: left;width: 50%}
+    </style>
 </head>
 <body>
-    
+    <div id="Game-info">
+        <div id="Game-info-1">
+            <span>牌局信息：</span>
+            <p>4名普通狼人</p>
+            <p>预言家、女巫、猎人、白痴</p>
+            <p>4名普通村民</p>
+        </div>
+        <div id="Game-info-2">
+            <p>当前信息：</p>
+            <p>(这里只显示一条信息，以下都是举例)夜晚，请等待</p>
+            <p>（举例）白天，警上发言，xxx正在发言/遗言</p>
+            <p>（举例）白天，公投阶段，请投票</p>
+        </div>
+        <div id="Game-info-3">
+            <p>获得信息：</p>
+            <p>（举例）预言到xxx是狼人</p>
+            <p>（举例）xxx玩家夜晚死亡！</p>
+            <p>（举例）1,2,3,4投票给5号玩家</p>
+            <p>（举例）xxx玩家被公投出局！</p>
+        </div>
+        <div id="Game-info-4">
+            <h1>倒计时：10秒</h1>
+        </div>
+    </div>
+    <div id="Main">
+        <div>
+            <span>在一个古老的村庄里，来自于东方的神秘力量，导致了一些人基因突变\重组，变成了狼人，</span><br>
+            <span>狼人每晚都会杀害一名玩家，而好人无法辨别谁是狼人</span><br>
+            <span>若你是好人，请找出全部隐藏的狼人</span><br>
+            <span>若你是狼人，请隐藏身份，杀死全部神民或平民</span>
+        </div>
+        <div>
+            <canvas id="MainCanvas" width="600" height="500">
+            </canvas>
+        </div>
+        <div>
+            只是放在这里测试技能
+            <input type="button" value="杀人" id="btn-kill">
+            <input type="button" value="投警长票" id="btn-police">
+            <input type="button" value="投放逐票" id="btn-out">
+            <input type="button" value="预言" id="btn-seer">
+            <input type="button" value="解药" id="btn-treat">
+            <input type="button" value="毒药" id="btn-poison">
+            <input type="button" value="开枪" id="btn-gun">
+        </div>
+    </div>
+    <div id="Self-info">
+        <div id="Self-info-1">
+            <p>聊天信息复用</p>
+        </div>
+        <div id="Self-info-2">
+            <p>狼人战术区（情侣区暂时不留位置了）</p>
+        </div>
+        <div id="Self-info-3">
+            <div id="Id-1">你的身份是：猎人<img src="/static/images/hunter.jpg" width="100px" height="100px"></div>
+            <div id="Id-2">
+                <span>猎枪：若你死亡，在白天，可以开枪杀死一名玩家，被毒无法开枪</span><br>
+                <span>自爆：好吧，这只是另外一个技能</span>
+            </div>
+        </div>
+    </div>
 </body>
+<script type="text/javascript">
+    function Circle(x, y, radius) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        //this.color = color;
+        this.isSelected = false;
+        this.status = 0;
+    }
+    //全局变量
+    var canvas = document.getElementById("MainCanvas");
+    var ctx = canvas.getContext("2d");
+    var GamePlayerNumber = 12;
+    var circles = [];
+    var R = 160;
+    var r = 30;
+    var selectCircle = null;
+    var preClickCircle = null;
+    var clickType = 1;
+    var img_police = new Image();
+    img_police.src = "/static/images/police.jpg";
+    //创建游戏玩家
+    for(var i=0;i<GamePlayerNumber;i++)
+    {
+        var circle = new Circle();
+        circle.x = 300 + Math.cos(2*Math.PI / GamePlayerNumber * i) * R;
+        circle.y = 230 + Math.sin(2*Math.PI / GamePlayerNumber * i) * R;
+        circle.radius = r;
+        circles.push(circle);
+    }
+    Draw();
+    function Draw(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for(var i=0;i<GamePlayerNumber;i++)
+        {
+            var circle = circles[i];
+            ctx.beginPath();
+            if(circle.status == 0)
+                ctx.fillStyle = "#BCEE68";
+            else if(circle.status == -1)
+                ctx.fillStyle = "#CD2626";
+            else if(circle.status == 1)
+                ctx.fillStyle = "#ADFF2F";
+            else if(circle.status == 2)
+                ctx.fillStyle = "#8B8B83";
+            ctx.arc(circle.x,circle.y,r,0,2*Math.PI,true);
+            if (circle.isSelected) {
+                ctx.lineWidth = 5;
+            }
+            else {
+                ctx.lineWidth = 1;
+            }
+            ctx.stroke();
+            ctx.closePath();
+            ctx.fill();
+            //txt
+            ctx.fillStyle = "#000";
+            ctx.font = "italic 15px sans-serif";
+            var txt = ""+(i+1);
+            ctx.fillText(txt, circle.x-5, circle.y);
+            //police
+            if(i==9){
+                var x1 = 300 + Math.cos(2*Math.PI / GamePlayerNumber * i) * 100;
+                var y1 = 200 + Math.sin(2*Math.PI / GamePlayerNumber * i) * 100;
+                ctx.drawImage(img_police, x1, y1, 30, 30);
+            }
+        }
+    }
+    canvas.onmousemove = function(e){
+        var bbox = canvas.getBoundingClientRect();
+        var X = e.clientX - bbox.left * (canvas.width/bbox.width);
+        var Y = e.clientY - bbox.top * (canvas.height/bbox.height);
+        for(var i=0; i<GamePlayerNumber; i++) {
+            var c = circles[i];
+            var distanceFromCenter = Math.sqrt(Math.pow(c.x - X, 2) + Math.pow(c.y - Y, 2));
+            if (distanceFromCenter <= c.radius) {
+                c.isSelected = true;
+                selectCircle = c;
+                Draw();
+                return;
+            }
+        }
+        selectCircle = null;
+        for(i=0; i<GamePlayerNumber; i++) {
+            c = circles[i];
+            c.isSelected = false;
+        }
+        Draw();
+    };
+    canvas.onclick = function(e){
+        if(selectCircle != null){
+            if(preClickCircle != null)
+                preClickCircle.status = 0;
+            selectCircle.status = clickType;
+            preClickCircle = selectCircle;
+        }
+        else{
+            if(preClickCircle != null)
+                preClickCircle.status = 0;
+            preClickCircle = null;
+        }
+    };
+
+    document.getElementById("btn-kill").onclick = function(e){
+        clickType = 2;
+    };
+    document.getElementById("btn-police").onclick = function(e){
+        clickType = 1;
+    };
+    document.getElementById("btn-out").onclick = function(e){
+        clickType = 2;
+    };
+    document.getElementById("btn-seer").onclick = function(e){
+        clickType = 1;
+    };
+    document.getElementById("btn-treat").onclick = function(e){
+        clickType = 1;
+    };
+    document.getElementById("btn-poison").onclick = function(e){
+        clickType = 2;
+    };
+    document.getElementById("btn-gun").onclick = function(e){
+        clickType = 2;
+    };
+</script>
 </html>
