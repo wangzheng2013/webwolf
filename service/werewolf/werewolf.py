@@ -110,6 +110,14 @@ class werewolf_game():
         if (self.character[index].isIdiot() and flag == werewolf_character.DEATH.EXILE):
             self.character[index].alive = True
             self.__IdiotFaceUp = True
+            self.log.addLog(u"God : %d号玩家为白痴神身份，免于放逐并变为灵魂状态"%index)
+
+    def canVote(self, index):
+        # 判定一个人是否有放逐投票的资格
+        if self.character[index].isIdiot():
+            return not self.__IdiotFaceUp
+        else:
+            return self.character[index].alive
 
     def isFinished(self):
         """ 判定游戏是否结束 """
@@ -334,7 +342,8 @@ class werewolf_game():
             self.log.addLog(u'God : 游戏结束， 狼人获胜')
         if self.isFinished() == 2:
             self.log.addLog(u'God : 游戏结束， 好人获胜')
-
+        if (self.isFinished() != 0):
+            return
         first = 0
         if self.__Police != -1:
             first = (self.__Police + 1) % self.__num

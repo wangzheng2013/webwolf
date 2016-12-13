@@ -1,0 +1,69 @@
+{% extends 'userbase.html' %}
+
+    {% endblock %}
+{% block content %}
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+
+
+
+
+
+
+    <div id="chatroom">
+        <div id="chat-heading">
+            <span class="word-common">房间人数：{{ roomnum}}</span>
+        </div>
+        <div id="chat-body">
+            <div class="user-list"><p class="other-user-name">银色子弹</p></div>
+        </div>
+
+        <div class = "list-group-item">
+            {% for chat in chats %}
+            <h4 class="list-group-item-heading">{{chat.sender}}:{{chat.content}}</h4>
+            <p class="list-group-item-text">{{chat.time}}</p>
+            <input type="hidden" class="chat_id" value="{{chat.id}}"/>
+            <br>
+            {% endfor %}
+            </div>
+        <form method="post" action="/post_chat/">
+            {% csrf_token %}
+            <textarea id="chat-input" class="form-control" name = 'chat_content'></textarea>
+            <input id="chat-button" class="btn btn-info btn-lg" type = 'submit' name = 'submit'value="发送"/>
+            </form>
+    </div>
+    <div id="settings">
+        <p class="word-common">房间配置</p>
+        <form action="" method="get">
+            <p class="word-common">神民阵营</p>
+            <label class="word-common"><input name="god" type="checkbox" value="seer" />预言家</label>
+            <label class="word-common"><input name="god" type="checkbox" value="witch" />女巫 </label>
+            <label class="word-common"><input name="god" type="checkbox" value="hunter" />猎人</label>
+            <label class="word-common"><input name="god" type="checkbox" value="idiot" />白痴 </label>
+            <p class="word-common">狼人阵营</p>
+            <label class="word-common"><input name="god" type="checkbox" value="idiot" />白狼 </label>
+            <p class="word-common">普通狼人数量</p>
+            <select></select>
+            <div>
+                <input class="btn btn-info" type = 'submit' name = 'setting' value="设置"/>
+                <input class="btn btn-info" type = 'submit' name = 'setting' value="准备"/>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+{% block js %}
+<script>
+function updateMsg(){
+    $.post(
+        "/get_chat/",
+        {
+            last_chat_id: $(".chat_id").last().val()
+        },
+        function(data){
+            $('.list-group-item').append(data);
+        }
+    );
+    setTimeout("updateMsg()", 3000);
+}
+    updateMsg();
+</script>
+{% endblock %}
