@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # 狼人游戏逻辑模块
 
-from enum import Enum
+from aenum import Enum
 from random import randint
 
 class gameLog():
@@ -13,14 +13,26 @@ class gameLog():
             print(message)
 
 class werewolf_character():
+
     class CHARACTER(Enum):
-        NULL = 0
-        WEREWOLF = 1
-        VILLEGER = 2
-        SEER = 3
-        WITCH = 4
-        HUNTER = 5
-        IDIOT = 6
+        NULL = 0, 'NULL'
+        WEREWOLF = 1, 'WEREWOLF'
+        VILLEGER = 2, 'VILLEGER'
+        SEER = 3, 'SEER'
+        WITCH = 4, 'WITCH'
+        HUNTER = 5, 'HUNTER'
+        IDIOT = 6, 'IDIOT'
+        def __new__(cls, value, name):
+            member = object.__new__(cls)
+            member._value_ = value
+            member.fullname = name
+            return member
+
+        def __int__(self):
+            return self.value
+
+        def __str__(self):
+            return self.name
 
     class DEATH(Enum):
         NULL = 0
@@ -360,3 +372,9 @@ class werewolf_game():
         self.log.addLog('%dth player exile' % killPlayer)
         self.kill(killPlayer, werewolf_character.DEATH.EXILE)
 
+    # 导出信息
+    def characterList(self):
+        list = []
+        for i in range(self.__num):
+            list.append((i, self.character[i].character))
+        return list

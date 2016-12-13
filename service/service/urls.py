@@ -18,6 +18,7 @@ from django.contrib import admin
 from werewolf.views import *
 from werewolf.views_SignIO import *
 from werewolf.view_room import *
+from werewolf.view_game import *
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -27,6 +28,9 @@ urlpatterns = [
     url(r'^chat/$', chat),
     url(r'^get_chat/$', get_chat),
     url(r'^post_chat/$', post_chat),
+    # game
+    url(r'^game_api/$', game_api),
+    url(r'^post_game/$', post_game),
     # userBase
     url(r'^userbase/$', userbase),
     # sign/log IO
