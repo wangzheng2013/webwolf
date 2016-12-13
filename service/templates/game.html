@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Game start!</title>
     <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
     <link type = "text/css" href = "/static/css/bootstrap.min.css" rel = "stylesheet">
     <style>
         #Game-info{position:relative;float:left;width:25%}
@@ -90,14 +91,23 @@
         this.isSelected = false;
         this.status = 0;
     }
+    //玩家类，用于储存玩家信息，可调用
+    function Player(name,head,identity) {
+        this.name = name;
+        this.head = head;
+        this.identity = identity;
+    }
     //全局变量
     var canvas = document.getElementById("MainCanvas");
     var ctx = canvas.getContext("2d");
     var GamePlayerNumber = 12;
+    var names = ["银色子弹", "神挡杀神", "意识流", "阿姆斯特朗", "东方不败"];
     var circles = [];
+    var players = [];
     var R = 160;
     var r = 30;
     var selectCircle = null;
+    var selectPlayer = -1;
     var preClickCircle = null;
     var clickType = 1;
     var img_police = new Image();
@@ -110,6 +120,15 @@
         circle.y = 230 + Math.sin(2*Math.PI / GamePlayerNumber * i) * R;
         circle.radius = r;
         circles.push(circle);
+
+        var player = new Player();
+        player.name = names[parseInt(Math.random()*names.length, 10)];
+        player.identity = null;
+        var head = new Image();
+        head.src = '/static/images/head'+(i%4)+".jpg";
+        player.head = head;
+        players.push(player);
+        //console.log(""+i);
     }
     Draw();
     function Draw(){
@@ -129,6 +148,8 @@
             ctx.arc(circle.x,circle.y,r,0,2*Math.PI,true);
             if (circle.isSelected) {
                 ctx.lineWidth = 5;
+                var textx = circle.x;
+                var texty = circle.y;
             }
             else {
                 ctx.lineWidth = 1;
@@ -136,6 +157,7 @@
             ctx.stroke();
             ctx.closePath();
             ctx.fill();
+            //ctx.drawImage(players[i].head, circle.x - 30, circle.y - 30, 60, 60);
             //txt
             ctx.fillStyle = "#000";
             ctx.font = "italic 15px sans-serif";
@@ -148,6 +170,17 @@
                 ctx.drawImage(img_police, x1, y1, 30, 30);
             }
         }
+
+
+
+        if(selectPlayer != -1){
+            ctx.fillStyle = "#000";
+            ctx.font = "italic 15px sans-serif";
+            txt = players[selectPlayer].name;
+            ctx.fillText(txt,textx+30, texty-10);
+            txt = "身份：未知";
+            ctx.fillText(txt,textx+30, texty+5);
+        }
     }
     canvas.onmousemove = function(e){
         var bbox = canvas.getBoundingClientRect();
@@ -159,11 +192,13 @@
             if (distanceFromCenter <= c.radius) {
                 c.isSelected = true;
                 selectCircle = c;
+                selectPlayer = i;
                 Draw();
                 return;
             }
         }
         selectCircle = null;
+        selectPlayer = 0;
         for(i=0; i<GamePlayerNumber; i++) {
             c = circles[i];
             c.isSelected = false;
