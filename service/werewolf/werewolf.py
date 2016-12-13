@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # 狼人游戏逻辑模块
 
-from enum import Enum
+from aenum import Enum
 from random import randint
 
 class gameLog():
@@ -13,14 +13,26 @@ class gameLog():
             print(message)
 
 class werewolf_character():
+
     class CHARACTER(Enum):
-        NULL = 0
-        WEREWOLF = 1
-        VILLEGER = 2
-        SEER = 3
-        WITCH = 4
-        HUNTER = 5
-        IDIOT = 6
+        NULL = 0, 'NULL'
+        WEREWOLF = 1, 'WEREWOLF'
+        VILLEGER = 2, 'VILLEGER'
+        SEER = 3, 'SEER'
+        WITCH = 4, 'WITCH'
+        HUNTER = 5, 'HUNTER'
+        IDIOT = 6, 'IDIOT'
+        def __new__(cls, value, name):
+            member = object.__new__(cls)
+            member._value_ = value
+            member.fullname = name
+            return member
+
+        def __int__(self):
+            return self.value
+
+        def __str__(self):
+            return self.name
 
     class DEATH(Enum):
         NULL = 0
@@ -110,6 +122,14 @@ class werewolf_game():
         if (self.character[index].isIdiot() and flag == werewolf_character.DEATH.EXILE):
             self.character[index].alive = True
             self.__IdiotFaceUp = True
+            self.log.addLog(u"God : %d号玩家为白痴神身份，免于放逐并变为灵魂状态"%index)
+
+    def canVote(self, index):
+        # 判定一个人是否有放逐投票的资格
+        if self.character[index].isIdiot():
+            return not self.__IdiotFaceUp
+        else:
+            return self.character[index].alive
 
     def isFinished(self):
         """ 判定游戏是否结束 """
@@ -334,7 +354,8 @@ class werewolf_game():
             self.log.addLog(u'God : 游戏结束， 狼人获胜')
         if self.isFinished() == 2:
             self.log.addLog(u'God : 游戏结束， 好人获胜')
-
+        if (self.isFinished() != 0):
+            return
         first = 0
         if self.__Police != -1:
             first = (self.__Police + 1) % self.__num
@@ -351,3 +372,9 @@ class werewolf_game():
         self.log.addLog('%dth player exile' % killPlayer)
         self.kill(killPlayer, werewolf_character.DEATH.EXILE)
 
+    # 导出信息
+    def characterList(self):
+        list = []
+        for i in range(self.__num):
+            list.append((i, self.character[i].character))
+        return list

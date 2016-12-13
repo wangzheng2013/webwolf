@@ -1,0 +1,11 @@
+{% block content %}
+    {% for info in gameInfoList%}
+    <p>{{info.seat}} : {{ info.user.username }} ({{info.character}})</p>
+    {% endfor %}
+<form action="/post_game/" method="post">
+    {% csrf_token %}
+    <input type = 'submit' name = 'submit' value="创建游戏"/>
+    </form>
+{% endblock %}
+{% block js %}
+{% endblock %}
