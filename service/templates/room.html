@@ -1,26 +1,28 @@
 {% extends 'userbase.html' %}
     {% block css %}
         #chatroom{position: absolute;left:3%;top: 10%;width: 40%;height: 60%;opacity: 0.9;}
-        #chat-heading{background-color:#475632}
-        #chat-body{background-color:green;position:relative;float:left;width:25%;height:300px;overflow:auto}
+        #chat-heading{background-image:url("/static/images/chathead.jpg");padding-left:5px}
+        #chat-body{background-image:url("/static/images/chatuser.jpg");position:relative;float:left;width:25%;height:300px;overflow:auto;padding:5px}
         #chat-info{background-color:black;position;relative;float:right;width: 75%;height: 300px;overflow: auto;}
         #chat-input{position:relative;float:left;width: 80%; margin-top:10px}
         #chat-button{position;relative;float:right;margin:12px;}
         .user-list{}
-        .other-user-name{color:white}
-        .other-user-text{color:white}
+        .other-user-name{color:black;font-family:微软雅黑}
+        .list-group-item-heading{font-family:微软雅黑}
+        .list-group-item-text{font-family:微软雅黑;font-size:10px}
         .word-common{color:white}
-        .list-group-item{overflow:auto}
+        .list-group-item{background-image:url("/static/images/chatroom.jpg");overflow:auto}
         #settings{position: absolute;left:50%;top: 10%;width: 40%;height: 60%;opacity: 0.9;}
+        #d-setting{margin-top:10px}
     {% endblock %}
 {% block content %}
     <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
     <div id="chatroom">
         <div id="chat-heading">
-            <span class="word-common">房间人数：{{ roomnum}}</span>
+            <span class="other-user-name">房间人数：{{ roomnum}}</span>
         </div>
         <div id="chat-body">
-            <div class="user-list"><p class="other-user-name">银色子弹</p></div>
+            <div class="user-list"><p class="other-user-name">银色子弹&nbsp&nbsp<span style="color: red">&#10004</span></p></div>
         </div>
         <div id="chat-info">
             <div class = "list-group-item">
@@ -49,8 +51,13 @@
             <p class="word-common">狼人阵营</p>
             <label class="word-common"><input name="god" type="checkbox" value="idiot" />白狼 </label>
             <p class="word-common">普通狼人数量</p>
-            <select></select>
-            <div>
+            <select>
+                <option value ="volvo">Volvo</option>
+                <option value ="saab">Saab</option>
+                <option value="opel">Opel</option>
+                <option value="audi">Audi</option>
+            </select>
+            <div id="d-setting">
                 <input class="btn btn-info" type = 'submit' name = 'setting' value="设置"/>
                 <input class="btn btn-info" type = 'submit' name = 'setting' value="准备"/>
             </div>
