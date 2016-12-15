@@ -6,5 +6,6 @@ class userAdmin(admin.ModelAdmin):
 
 admin.site.register(Chat)
 admin.site.register(GameInfo)
+admin.site.register(Game2User)
 admin.site.register(SystemCommand)
 admin.site.register(room2Game)
