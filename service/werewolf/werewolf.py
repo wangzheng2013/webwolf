@@ -45,26 +45,48 @@ class werewolf_character():
     alive = True
     death_noticed = True
     def __init__(self, character):
-        self.alive = True
-        self.character = character
+        if type(character) == self.CHARACTER:
+            self.alive = True
+            self.character = character
+            self.death_noticed = True
+        if type(character) == int:
+            self.alive = True
+            self.character = self.CHARACTER(character)
+            self.death_noticed = True
+        if type(character) == str:
+            dic = eval(character)
+            self.alive = dic['alive']
+            self.character = dic['character']
+            self.death_noticed = dic['death_noticed']
 
     def __str__(self):
-        return "character : %d" % self.character
+        dic = {}
+        dic['character'] = int(self.character)
+        dic['alive'] = self.alive
+        dic['death_noticed'] = self.death_noticed
+        return str(dic)
+
+    def encode(self):
+        dic = {}
+        dic['character'] = int(self.character)
+        dic['alive'] = self.alive
+        dic['death_noticed'] = self.death_noticed
+        return str(dic)
 
     def isWolf(self):
-        return self.character == self.CHARACTER.WEREWOLF
+        return int(self.character) == int(self.CHARACTER.WEREWOLF)
     def isGold(self):
-        return (self.character == self.CHARACTER.HUNTER) or (self.character == self.CHARACTER.SEER) or (self.character == self.CHARACTER.WITCH) or (self.character == self.CHARACTER.IDIOT)
+        return self.isHunter() or self.isSeer() or self.isIdiot() or self.isWitch()
     def isVilleger(self):
-        return self.character == self.CHARACTER.VILLEGER
+        return int(self.character) == int(self.CHARACTER.VILLEGER)
     def isHunter(self):
-        return self.character == self.CHARACTER.HUNTER
+        return int(self.character) == int(self.CHARACTER.HUNTER)
     def isSeer(self):
-        return self.character == self.CHARACTER.SEER
+        return int(self.character) == int(self.CHARACTER.SEER)
     def isWitch(self):
-        return self.character == self.CHARACTER.WITCH
+        return int(self.character) == int(self.CHARACTER.WITCH)
     def isIdiot(self):
-        return self.character == self.CHARACTER.IDIOT
+        return int(self.character) == int(self.CHARACTER.IDIOT)
 
 class werewolf_game():
     """ 狼人游戏 对象 """
@@ -79,8 +101,13 @@ class werewolf_game():
     gameId = 0 # 游戏id对应储存在数据库的游戏列表ID
     log = gameLog()
     character = []
-    def __init__(self):
-        """无先决条件，新建一个GAME"""
+    def __init__(self, str_info):
+        """
+        创建一个游戏对象
+        :param str_info: 字符串化的字典型游戏信息（可无）
+        :return: 游戏对象
+        """
+        # 假设无先决条件，新建一个GAME
         self.gameId = 1
         self.__day = 0
         self.__num = 12
@@ -89,6 +116,7 @@ class werewolf_game():
         self.__HunterGun = True
 
         # 初始化所有角色
+        self.character = []
         for i in range(4):
             self.character.append(werewolf_character(werewolf_character.CHARACTER.VILLEGER))
             self.character.append(werewolf_character(werewolf_character.CHARACTER.WEREWOLF))
@@ -101,9 +129,44 @@ class werewolf_game():
             tmp = self.character[i]
             self.character[i] = self.character[j]
             self.character[j] = tmp
-        # 保存角色
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        #
+
+        # 根据先决条件INFO中的信息构造出符合INFO的游戏对象
+        info = eval(str_info)
+        if type(info) == dict:
+            if info.has_key('day'):
+                self.__day = info['day']
+            if info.has_key('num'):
+                self.__num = info['num']
+            if info.has_key('WitchA'):
+                self.__WitchAntidote = info['WitchA']
+            if info.has_key('WitchP'):
+                self.__WitchPoison = info['WitchP']
+            if info.has_key('HunterG'):
+                self.__HunterGun = info['HunterG']
+            if info.has_key('IdoitFU'):
+                self.__IdiotFaceUp = info['IdoitFU']
+            if info.has_key('victim'):
+                self.__victim = info['victim']
+            if info.has_key('Police'):
+                self.__Police = info['Police']
+            for i in range(self.__num):
+                if info.has_key('character%d'%i):
+                    self.character[i] = werewolf_character(str(info['character%d'%i]))
+
+    def gameInfoEncode(self):
+        # 将必要记录的游戏信息记录成一个字符串
+        info = {}
+        info['day'] = self.__day
+        info['num'] = self.__num
+        info['WitchA'] = self.__WitchAntidote
+        info['WitchP'] = self.__WitchPoison
+        info['HunterG'] = self.__HunterGun
+        info['IdoitFU'] = self.__IdiotFaceUp
+        info['victim'] = self.__victim
+        info['Police'] = self.__Police
+        for i in range(self.__num):
+            info['character%d'%i] = self.character[i].encode()
+        return str(info)
 
     def kill(self, index, flag):
         """角色死亡，触发死亡技能等"""
@@ -232,7 +295,7 @@ class werewolf_game():
 
     def GoThroughNight(self):
         """ 晚上各角色执行技能 """
-        if (self.isFinished()):
+        if (self.isFinished() != 0):
             return
         self.__day = self.__day + 1
         self.log.addLog('night %d' % self.__day)
@@ -376,5 +439,5 @@ class werewolf_game():
     def characterList(self):
         list = []
         for i in range(self.__num):
-            list.append((i, self.character[i].character))
+            list.append((i, int(self.character[i].character)))
         return list

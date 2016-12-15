@@ -1,11 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-class GameInfo(models.Model):
+class Game2User(models.Model):
     gameId = models.IntegerField(default=0)
     seat = models.IntegerField(default=0)
     user = models.ForeignKey(User, related_name='sitting')
     character = models.IntegerField(default=0)
+    def __unicode__(self):
+        return u'%s' % self.id
+
+class GameInfo(models.Model):
+    gameId = models.IntegerField(default=0)
+    content = models.TextField(default = '{}')
     def __unicode__(self):
         return u'%s' % self.id
 
