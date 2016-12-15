@@ -31,6 +31,7 @@ urlpatterns = [
     # game
     url(r'^game_api/$', game_api),
     url(r'^post_game/$', post_game),
+    url(r'^get_syscommand/$', get_system_command),
     # userBase
     url(r'^userbase/$', userbase),
     # sign/log IO

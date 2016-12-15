@@ -171,13 +171,15 @@ class werewolf_game():
     def kill(self, index, flag):
         """角色死亡，触发死亡技能等"""
         # FLAG 参数为 死亡状态 参照 werewolf_character.DEATH
+        if index < 0:
+            return
         self.character[index].alive = False
         self.character[index].death_noticed = False
         if (self.character[index].isHunter()):
             # 猎人死亡
             if flag != werewolf_character.DEATH.POISONED_BY_WITCH:
                 # 可以开枪
-                self.hunter()
+                self.hunter(self.randomAlive())
             else:
                 # 不可开枪
                 self.character[index].alive = False
@@ -223,22 +225,25 @@ class werewolf_game():
         print("HunterGun : ", self.__HunterGun)
         print("IdiotFaceUp : ", self.__IdiotFaceUp)
 
-    def Wolf(self):
+    def Wolf(self, target):
         """ 狼人执行技能 """
-        # 是否存在狼人,存在则询问狼是否杀人
+        # 是否存在狼人,存在则询问狼是否杀人 target < 0 表示空刀
         tmp = 0
         for i in range(self.__num):
             if (self.character[i].isWolf()) and (self.character[i].alive):
                 tmp = tmp + 1
         if (tmp == 0):
             return
-        killPlayer = randint(0, 11)
-        while (not self.character[killPlayer].alive):
-            killPlayer = randint(0, 11)
+        if target >= self.__num:
+            return
+        killPlayer = target
+        #killPlayer = randint(0, 11)
+        #while (not self.character[killPlayer].alive):
+        #    killPlayer = randint(0, 11)
         self.log.addLog('wolves decided to kill %dth player' % killPlayer)
         self.__victim = killPlayer
 
-    def seer(self):
+    def seer(self, target):
         """ 预言家执行技能 """
         # 是否存在预言家,存在则询问
         tmp = 0
@@ -247,12 +252,13 @@ class werewolf_game():
                 tmp = tmp + 1
         if (tmp == 0):
             return
-        seePlayer = randint(0, 11)
+        seePlayer = target
         self.log.addLog('seer decided to predict %dth player' % seePlayer)
 
-    def witch(self):
+    def witch(self, target):
         """ 女巫执行技能 """
         # 是否存在女巫,存在则询问
+        # target = -1 表示使用解药, 其余负数为不救， target = seatid 表示使用毒药
         victim = self.__victim
         tmp = 0
         for i in range(self.__num):
@@ -262,54 +268,54 @@ class werewolf_game():
             self.kill(victim, werewolf_character.DEATH.METHERED_BY_WOLVES)
             return
         flag = True
-        if (self.__WitchAntidote):
+        if (self.__WitchAntidote and target == -1):
             # 女巫可以使用解药
-            if randint(0, 1) == 0:
-                # 使用解药
-                self.log.addLog('witch decided to help %dth player' % victim)
-                self.__WitchAntidote = False
-                flag = False
-        if (flag):
+            # 使用解药
+            self.log.addLog('witch decided to help %dth player' % victim)
+            self.__WitchAntidote = False
+            flag = False
+        else:
             # 女巫没有不救或者没药
             self.kill(victim, werewolf_character.DEATH.METHERED_BY_WOLVES)
 
-        if (flag and self.__WitchPoison):
-            if randint(0, 1) == 0:
-                # 使用毒药
-                self.__WitchPoison = False
-                killPlayer = randint(0, 11)
-                while (not self.character[killPlayer].alive):
-                    killPlayer = randint(0, 11)
-                self.log.addLog('witch decided to poison %dth player' % killPlayer)
-                self.kill(killPlayer, werewolf_character.DEATH.POISONED_BY_WITCH)
+        if (self.__WitchPoison and target >= 0 and self.character[target].alive):
+            # 使用毒药
+            self.__WitchPoison = False
+            killPlayer = target
+            self.log.addLog('witch decided to poison %dth player' % killPlayer)
+            self.kill(killPlayer, werewolf_character.DEATH.POISONED_BY_WITCH)
 
-    def hunter(self):
+    def hunter(self, target):
         """ 猎人执行技能 ： 执行条件满足后才会进入，不需判定执行前置条件 """
         if (self.__HunterGun):
-            killPlayer = randint(0, 11)
-            while (not self.character[killPlayer].alive):
-                killPlayer = randint(0, 11)
+            killPlayer = target
             self.log.addLog('hunter decided to shoot %dth player' % killPlayer)
             self.kill(killPlayer, werewolf_character.DEATH.SHOOTED_BY_HUNTER)
             self.__HunterGun = False
 
+    def randomAlive(self):
+        target = randint(0, self.__num - 1)
+        while not self.character[target].alive:
+            target = randint(0, self.__num - 1)
+        return target
+
     def GoThroughNight(self):
-        """ 晚上各角色执行技能 """
+        """ 晚上各角色执行技能(随机，测试用) """
         if (self.isFinished() != 0):
             return
         self.__day = self.__day + 1
         self.log.addLog('night %d' % self.__day)
         # 狼人杀人
-        self.Wolf()
+        self.Wolf(self.randomAlive())
         # 预言家验人
-        self.seer()
+        self.seer(self.randomAlive())
         # 女巫救人和毒人
-        self.witch()
+        self.witch(self.randomAlive())
 
     def GoThroughDay(self):
+        """ 白天轮转 随机 测试用 """
         if (self.isFinished() != 0):
             return
-        """ 白天轮转 """
         if (self.__day == 1):
             # 警上竞选
             join_in = [] # 0 警下 1 警上 2 退水
@@ -441,3 +447,12 @@ class werewolf_game():
         for i in range(self.__num):
             list.append((i, int(self.character[i].character)))
         return list
+
+    def getVictim(self):
+        return self.__victim
+
+    def getWitchP(self):
+        return self.__WitchPoison
+
+    def getWitchA(self):
+        return self.__WitchAntidote

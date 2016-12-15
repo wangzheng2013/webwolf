@@ -10,6 +10,61 @@
     <input type = 'submit' name = 'action' value="白天"/>
     <input type = 'submit' name = 'action' value="黑夜"/>
     </form>
+    {% if wolf_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+        <input type = 'number' name = 'target'/>
+        <input type = 'submit' name = 'action' value="狼刀"/>
+        <input type = 'submit' name = 'action' value="空刀"/>
+        </form>
+    {% endif %}
+    {% if seer_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+        <input type = 'number' name = 'target'/>
+        <input type = 'submit' name = 'action' value="预言家"/>
+        </form>
+    {% endif %}
+    {% if witch_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+        {% if witchA %}
+        <p>昨天晚上{{victim}}号玩家死亡————</p>
+        <input type = 'submit' name = 'action' value="女巫救"/>
+        {% endif %}
+        {% if witchP %}
+        <input type = 'number' name = 'target'/>
+        <input type = 'submit' name = 'action' value="女巫毒"/>
+        {% endif %}
+        <input type = 'submit' name = 'action' value="女巫过"/>
+        </form>
+    {% endif %}
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+    <div id="chatroom">
+        <div class = "list-group-item">
+            {% for chat in chats %}
+            <h4 class="list-group-item-heading">{{chat.sender}}:{{chat.content}}</h4>
+            <p class="list-group-item-text">{{chat.time}}</p>
+            <input type="hidden" class="chat_id" value="{{chat.id}}"/>
+            <br>
+            {% endfor %}
+            </div>
+    </div>
 {% endblock %}
 {% block js %}
+<script>
+function updateMsg(){
+    $.post(
+        "/get_syscommand/",
+        {
+            last_chat_id: $(".chat_id").last().val()
+        },
+        function(data){
+            $('.list-group-item').append(data);
+        }
+    );
+    setTimeout("updateMsg()", 3000);
+}
+    updateMsg();
+</script>
 {% endblock %}

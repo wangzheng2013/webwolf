@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -24,6 +25,9 @@ class Chat(models.Model):
         return self.content
 
 class SystemCommand(models.Model):
+    """
+    content 里面是一个字典对象的字符串，字典中的command为Werewolf表示狼人刀人时间，Seer表示预言时间，Witch表示女巫时间,以此类推
+    """
     gameId = models.IntegerField(default=0)
     content = models.TextField()
     time = models.DateTimeField(auto_now_add=True, null=True)
