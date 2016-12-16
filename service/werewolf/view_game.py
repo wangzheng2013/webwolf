@@ -180,6 +180,7 @@ def game_api(request):
         for i in range(game.getNum()):
             if voteList[i] == False:
                 voters.append(i)
+    votes = userVote.objects.filter(gameId = 1)
     return render(request, "game_api.html", locals())
 
 def post_game(request):
