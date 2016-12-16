@@ -174,7 +174,7 @@ class werewolf_game():
         if index < 0:
             return
         self.character[index].alive = False
-        self.character[index].death_noticed = False
+        self.character[index].death_noticed = (flag == werewolf_character.DEATH.EXILE) # 白天死亡不需要进行死亡宣布
         if (self.character[index].isHunter()):
             # 猎人死亡
             if flag != werewolf_character.DEATH.POISONED_BY_WITCH:
@@ -188,6 +188,14 @@ class werewolf_game():
             self.character[index].alive = True
             self.__IdiotFaceUp = True
             self.log.addLog(u"God : %d号玩家为白痴神身份，免于放逐并变为灵魂状态"%index)
+
+    def getAllDeath(self):
+        ans = []
+        for i in range(self.__num):
+            if (not self.character[i].death_noticed) and (not self.character[i].alive):
+                self.character[i].death_noticed = True
+                ans.append(i)
+        return ans
 
     def canVote(self, index):
         # 判定一个人是否有放逐投票的资格
@@ -508,3 +516,12 @@ class werewolf_game():
 
     def getPolice(self):
         return self.__Police
+
+    def getAllAliveState(self):
+        ans = []
+        for i in range(self.__num):
+            if self.character[i].alive:
+                ans.append(1)
+            else:
+                ans.append(0)
+        return ans
