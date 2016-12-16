@@ -26,6 +26,7 @@ def game_api(request):
     else:
         content = gameInfo[0].content
     game = werewolf_game(content)
+    gameover = game.isFinished()  # 游戏是否结束
     num = game.getNum()
     userList = Game2User.objects.filter(gameId = gameId)
     for user in userList:
@@ -41,6 +42,9 @@ def game_api(request):
     victim = game.getVictim()
     witchA = game.getWitchA()
     witchP = game.getWitchP()
+    police = game.getPolice()
+    deathLastNight = game.getAllDeath()
+    allAliveState = game.getAllAliveState()
     voters = []
     speaker = 0
     for chat in chats:
@@ -52,7 +56,6 @@ def game_api(request):
         if system_command['command'] == 'Seer':
             seer_move = True
         if system_command['command'] == 'Day':
-            police = game.getPolice()
             if police == -1:
                 SystemCommand.objects.filter(gameId = gameId).delete()
                 list = game.getAliveList()
