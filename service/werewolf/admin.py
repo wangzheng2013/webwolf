@@ -6,7 +6,7 @@ class userAdmin(admin.ModelAdmin):
 
 admin.site.register(Chat)
 admin.site.register(GameInfo)
-admin.site.register(Game2User)
+admin.site.register(Game2User, list_display = ('gameId', 'seat', 'user', 'character'))
 admin.site.register(SystemCommand)
 admin.site.register(room2Game)
 admin.site.register(userVote, list_display = ('seat', 'day', 'vote'))

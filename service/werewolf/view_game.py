@@ -17,6 +17,7 @@ def get_system_command(request):
 
 def game_api(request):
     # 检查参数，正确则继续，错误则重定向到正确的参数
+    username = request.user.username
     seat = request.GET.get('seat')
     # 正式开始
     gameId = 1
@@ -167,21 +168,29 @@ def game_api(request):
     if system_command['command'] == 'PoliceVote':
         police_vote_move = True
         for i in range(game.getNum()):
-            if system_command['state'][i] != '4':
-                # 不在警下无法投票
-                voteList[i] = True
-        day = 101
-    if system_command['command'] == 'Vote':
-        vote_move = True
-        day = game.getDay()
-    votes = userVote.objects.filter(gameId = 1, day = day)
-    for vote in votes:
-        voteList[vote.seat] = True
-    for i in range(game.getNum()):
-        if voteList[i] == False:
-            voters.append(i)
-    votes = userVote.objects.filter(gameId = 1, day = 101)
+            voteList.append(False)
+        if system_command['command'] == 'Police':
+            police_move = True
+            day = 100
+        if system_command['command'] == 'PoliceVote':
+            police_vote_move = True
+            for i in range(game.getNum()):
+                if system_command['state'][i] != '4':
+                    # 不在警下无法投票
+                    voteList[i] = True
+            day = 101
+        if system_command['command'] == 'Vote':
+            vote_move = True
+            day = game.getDay()
+        votes = userVote.objects.filter(gameId = 1, day = day)
+        for vote in votes:
+            voteList[vote.seat] = True
+        for i in range(game.getNum()):
+            if voteList[i] == False:
+                voters.append(i)
+    votes = userVote.objects.filter(gameId = 1)
     return render(request, "game.html", locals())
+
 
 def post_game(request):
     if request.method == 'POST':
@@ -191,17 +200,28 @@ def post_game(request):
         command = request.POST.get('action')
         if command == u'创建游戏':
             # 删除上一局的信息
-            Game2User.objects.filter(gameId = gameId).delete()
-            userVote.objects.filter(gameId = gameId).delete()
-            # 新建一个游戏,并且保存到数据库中
             game = werewolf_game(str({}))
+            seatList = []
+            for i in range(game.getNum()):
+                seatList.append({})
             characters = game.characterList()
             for (seat, character) in characters:
+                i = int(seat)
+                seatList[i]['character'] = int(character)
+                tmp = Game2User.objects.filter(gameId = gameId, seat = i)
+                if len(tmp) == 1:
+                    seatList[i]['user'] = Game2User.objects.filter(gameId = gameId, seat = i)[0].user
+                else:
+                    seatList[i]['user'] = request.user
+            userVote.objects.filter(gameId = gameId).delete()
+            # 新建一个游戏,并且保存到数据库中
+            Game2User.objects.filter(gameId = gameId).delete()
+            for i in range(game.getNum()):
                 user = Game2User()
                 user.gameId = gameId
-                user.character = int(character)
-                user.user = request.user
-                user.seat = seat
+                user.character = seatList[i]['character']
+                user.user = seatList[i]['user']
+                user.seat = i
                 user.save()
             # 在数据库中保存相应的游戏信息
             GameInfo.objects.filter(gameId = gameId).delete()
