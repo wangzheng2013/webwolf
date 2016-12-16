@@ -3,7 +3,7 @@ from django.http import *
 from django.shortcuts import render
 from django.template.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
-from models import Chat
+from models import Chat, Game2User
 from django.core.cache import cache
 
 def room(request):
@@ -12,6 +12,14 @@ def room(request):
     if roomnum is None:
         roomnum = '无'
     chats = Chat.objects.filter(id__gt = 0)
+    num = 12
+    userList = []
+    for i in range(num):
+        userList.append(0)
+    for i in range(num):
+        tmp = Game2User.objects.filter(gameId = 1, seat = i)
+        if len(tmp) == 1:
+            userList[i] = tmp[0].user
     return render(request, "room.html", locals())
 
 def chat(request):

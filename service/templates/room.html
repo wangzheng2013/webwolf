@@ -62,11 +62,18 @@
                 <input class="btn btn-info" type = 'submit' name = 'setting' value="准备"/>
             </div>
         </form>
-        <form action="/post_game/" method="post" style="margin-top: 10px">
+        <form action="/post_game/" method="post">
             {% csrf_token %}
             <input class="btn btn-warning" type = 'submit' name = 'action' value="创建游戏"/>
         </form>
     </div>
+    {% for user in userList%}
+        {% if user == 0 %}
+        <p>无</p>
+        {% else %}
+        <p>{{user.username}}</p>
+        {% endif %}
+    {% endfor %}
 {% endblock %}
 {% block js %}
 <script>

@@ -17,6 +17,7 @@ def get_system_command(request):
 
 def game_api(request):
     # 检查参数，正确则继续，错误则重定向到正确的参数
+    username = request.user.username
     seat = request.GET.get('seat')
     # 正式开始
     gameId = 1
