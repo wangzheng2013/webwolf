@@ -3,7 +3,7 @@
         #chatroom{position: absolute;left:3%;top: 10%;width: 40%;height: 60%;opacity: 0.9;}
         #chat-heading{background-image:url("/static/images/chathead.jpg");padding-left:5px}
         #chat-body{background-image:url("/static/images/chatuser.jpg");position:relative;float:left;width:25%;height:300px;overflow:auto;padding:5px}
-        #chat-info{background-color:black;position;relative;float:right;width: 75%;height: 300px;overflow: auto;}
+        #chat-info{background-image:url("/static/images/chatroom.jpg");position;relative;float:right;width: 75%;height: 300px;overflow: auto;}
         #chat-input{position:relative;float:left;width: 80%; margin-top:10px}
         #chat-button{position;relative;float:right;margin:12px;}
         .user-list{}
@@ -44,22 +44,22 @@
         <p class="word-common">房间配置</p>
         <form action="" method="get">
             <p class="word-common">神民阵营</p>
-            <label class="word-common"><input name="god" type="checkbox" value="seer" />预言家</label>
-            <label class="word-common"><input name="god" type="checkbox" value="witch" />女巫 </label>
-            <label class="word-common"><input name="god" type="checkbox" value="hunter" />猎人</label>
-            <label class="word-common"><input name="god" type="checkbox" value="idiot" />白痴 </label>
+            <label class="word-common"><input name="god" type="checkbox" value="seer" disabled="true" checked/>预言家</label>
+            <label class="word-common"><input name="god" type="checkbox" value="witch" disabled="true" checked/>女巫 </label>
+            <label class="word-common"><input name="god" type="checkbox" value="hunter" disabled="true" checked/>猎人</label>
+            <label class="word-common"><input name="god" type="checkbox" value="idiot" disabled="true" checked />白痴 </label>
             <p class="word-common">狼人阵营</p>
-            <label class="word-common"><input name="god" type="checkbox" value="idiot" />白狼 </label>
+            <label class="word-common"><input name="god" type="checkbox" value="idiot" disabled="true"/>白狼 </label>
             <p class="word-common">普通狼人数量</p>
-            <select>
-                <option value ="volvo">Volvo</option>
-                <option value ="saab">Saab</option>
-                <option value="opel">Opel</option>
-                <option value="audi">Audi</option>
+            <select disabled="true">
+                <option value ="1">1</option>
+                <option value ="2">2</option>
+                <option value ="3">3</option>
+                <option value ="4" selected="selected">4</option>
             </select>
             <div id="d-setting">
-                <input class="btn btn-info" type = 'submit' name = 'setting' value="设置"/>
-                <input class="btn btn-info" type = 'submit' name = 'setting' value="准备"/>
+                <input class="btn btn-info" type = 'submit' name = 'setting' value="设置" disabled="true"/>
+                <input class="btn btn-info" type = 'submit' name = 'setting' value="准备" />
             </div>
         </form>
         <form action="/post_game/" method="post" style="margin-top: 10px">

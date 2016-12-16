@@ -4,7 +4,6 @@ from django.shortcuts import render
 from django.template.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
 from models import Chat
-from django.core.cache import cache
 
 def room(request):
     username = request.user.username
@@ -18,11 +17,6 @@ def chat(request):
     username = request.user.username
     chats = Chat.objects.filter(id__gt = 0)
     return render(request, "chat.html", locals())
-
-def get_online_user_ids():
-    cache_key = '%s%s' % (user.id, user.name)
-    value = cache.get(cache_key)
-    user_dict = cache.get("online_ips",[])
 
 @csrf_exempt
 def get_chat(request):

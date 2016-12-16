@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 ALLOWED_HOSTS.append('*');
 
+SESSION_COOKIE_AGE = 60*10
 # Application definition
 
 INSTALLED_APPS = [
