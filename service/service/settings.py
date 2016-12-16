@@ -26,7 +26,7 @@ SECRET_KEY = '#jlcvxuwu$7!lt(pve^dz=0qrdpy7hjkbl5vn585hoc6g^ij0m'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS.append('*');
 
 # Application definition
 
@@ -81,7 +81,7 @@ DATABASES = {
        "ENGINE": "django.db.backends.mysql",
         "NAME": "werewolf",
         "USER": "root",
-        "PASSWORD": "chen134920",
+        "PASSWORD": "",
         "HOST": "127.0.0.1",
         "PORT": "3306",
     }

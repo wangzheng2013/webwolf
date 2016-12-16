@@ -62,6 +62,10 @@
                 <input class="btn btn-info" type = 'submit' name = 'setting' value="准备"/>
             </div>
         </form>
+        <form action="/post_game/" method="post" style="margin-top: 10px">
+            {% csrf_token %}
+            <input class="btn btn-warning" type = 'submit' name = 'action' value="创建游戏"/>
+        </form>
     </div>
 {% endblock %}
 {% block js %}

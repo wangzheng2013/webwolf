@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^post_chat/$', post_chat),
     # game
     url(r'^game_api/$', game_api),
+    url(r'^game/$', game_api),
     url(r'^post_game/$', post_game),
     url(r'^get_syscommand/$', get_system_command),
     # userBase
