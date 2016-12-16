@@ -199,17 +199,28 @@ def post_game(request):
         command = request.POST.get('action')
         if command == u'创建游戏':
             # 删除上一局的信息
-            Game2User.objects.filter(gameId = gameId).delete()
-            userVote.objects.filter(gameId = gameId).delete()
-            # 新建一个游戏,并且保存到数据库中
             game = werewolf_game(str({}))
+            seatList = []
+            for i in range(game.getNum()):
+                seatList.append({})
             characters = game.characterList()
             for (seat, character) in characters:
+                i = int(seat)
+                seatList[i]['character'] = int(character)
+                tmp = Game2User.objects.filter(gameId = gameId, seat = i)
+                if len(tmp) == 1:
+                    seatList[i]['user'] = Game2User.objects.filter(gameId = gameId, seat = i)[0].user
+                else:
+                    seatList[i]['user'] = request.user
+            userVote.objects.filter(gameId = gameId).delete()
+            # 新建一个游戏,并且保存到数据库中
+            Game2User.objects.filter(gameId = gameId).delete()
+            for i in range(game.getNum()):
                 user = Game2User()
                 user.gameId = gameId
-                user.character = int(character)
-                user.user = request.user
-                user.seat = seat
+                user.character = seatList[i]['character']
+                user.user = seatList[i]['user']
+                user.seat = i
                 user.save()
             # 在数据库中保存相应的游戏信息
             GameInfo.objects.filter(gameId = gameId).delete()
