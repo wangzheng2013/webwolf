@@ -157,29 +157,30 @@ def game_api(request):
             syscommand.content = str(system_command)
             syscommand.save()
 
-        day = 0
-        voteList = []
+    day = 0
+    voteList = []
+    for i in range(game.getNum()):
+        voteList.append(False)
+    if system_command['command'] == 'Police':
+        police_move = True
+        day = 100
+    if system_command['command'] == 'PoliceVote':
+        police_vote_move = True
         for i in range(game.getNum()):
-            voteList.append(False)
-        if system_command['command'] == 'Police':
-            police_move = True
-            day = 100
-        if system_command['command'] == 'PoliceVote':
-            police_vote_move = True
-            for i in range(game.getNum()):
-                if system_command['state'][i] != '4':
-                    # 不在警下无法投票
-                    voteList[i] = True
-            day = 101
-        if system_command['command'] == 'Vote':
-            vote_move = True
-            day = game.getDay()
-        votes = userVote.objects.filter(gameId = 1, day = day)
-        for vote in votes:
-            voteList[vote.seat] = True
-        for i in range(game.getNum()):
-            if voteList[i] == False:
-                voters.append(i)
+            if system_command['state'][i] != '4':
+                # 不在警下无法投票
+                voteList[i] = True
+        day = 101
+    if system_command['command'] == 'Vote':
+        vote_move = True
+        day = game.getDay()
+    votes = userVote.objects.filter(gameId = 1, day = day)
+    for vote in votes:
+        voteList[vote.seat] = True
+    for i in range(game.getNum()):
+        if voteList[i] == False:
+            voters.append(i)
+    votes = userVote.objects.filter(gameId = 1, day = 101)
     return render(request, "game.html", locals())
 
 def post_game(request):

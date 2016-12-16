@@ -17,9 +17,11 @@
         #Rule{height: 15%;padding-top: 10px;}
         #Self-info{position:relative;float:left;width: 25%;height: 100%}
         #Self-info-1{height: 40%;overflow: auto}
+        #chat-info{overflow: auto;}
         #Self-info-2{height: 20%;overflow: auto}
         #Id-1{position: relative;float: left;width: 50%}
         #Id-2{position: relative;float: left;width: 50%}
+        .timer{font-size: 30px;}
     </style>
 </head>
 <body>
@@ -64,11 +66,11 @@
             <p>（举例）1,2,3,4投票给5号玩家</p>
             <p>（举例）xxx玩家被公投出局！</p>
             {% for vote in votes %}
-            <p>{{vote.seat}}投票给{{vote.target}}号玩家</p>
+            <p>{{vote.seat}}投票给{{vote.vote}}号玩家</p>
             {% endfor %}
         </div>
         <div id="Game-info-4">
-            <h1>倒计时：10秒</h1>
+            <span class="timer">倒计时：</span><span id="time" class="timer"></span><span class="timer">秒</span>
         </div>
     </div>
     <div id="Main">
@@ -193,7 +195,7 @@
         <div class = "list-group-item">
             {% for chat in chats %}
             <h4 class="list-group-item-heading">{{chat.sender}}:{{chat.content}}</h4>
-            <p class="list-group-item-text">{{chat.time}}</p>
+            <p class="list-group-item-text">{{chat.time|date:"Y-m-d H:i:s"}}</p>
             <input type="hidden" class="chat_id" value="{{chat.id}}"/>
             <br>
             {% endfor %}
@@ -203,7 +205,21 @@
     </div>
     <div id="Self-info">
         <div id="Self-info-1">
-            <p>聊天信息复用</p>
+            <div id="chat-info">
+                <div class = "list-group-item">
+                {% for chat in chats %}
+                <h4 class="list-group-item-heading">{{chat.sender}}:{{chat.content}}</h4>
+                <p class="list-group-item-text">{{chat.time}}</p>
+                <input type="hidden" class="chat_id" value="{{chat.id}}"/>
+                <br>
+                {% endfor %}
+            </div>
+            <form method="post" action="/post_chat/">
+                {% csrf_token %}
+                <textarea id="chat-input" class="form-control" name = 'chat_content'></textarea>
+                <input id="chat-button" class="btn btn-info btn-lg" type = 'submit' name = 'submit' value="发送"/>
+            </form>
+        </div>
         </div>
         <div id="Self-info-2">
             <p>狼人战术区（情侣区暂时不留位置了）</p>
@@ -248,6 +264,7 @@
     var preClickCircle = null;
     var clickType = 1;
     var img_police = new Image();
+    var second = 0;
     img_police.src = "/static/images/police.jpg";
     //创建游戏玩家
     for(var i=0;i<GamePlayerNumber;i++)
@@ -405,5 +422,15 @@
         setTimeout("updateMsg()", 3000);
     }
     updateMsg();
+
+    function timer()
+    {
+        if(second == 0){
+            second = 60;
+        }
+        $('#time').text(second);
+        second--;
+    }
+    setInterval(function(){timer()},1000);
 </script>
 </html>

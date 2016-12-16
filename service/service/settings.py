@@ -26,7 +26,7 @@ SECRET_KEY = '#jlcvxuwu$7!lt(pve^dz=0qrdpy7hjkbl5vn585hoc6g^ij0m'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS.append('*');
 
 # Application definition
 
