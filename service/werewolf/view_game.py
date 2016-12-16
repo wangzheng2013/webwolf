@@ -177,7 +177,7 @@ def game_api(request):
         for i in range(game.getNum()):
             if voteList[i] == False:
                 voters.append(i)
-    return render(request, "game_api.html", locals())
+    return render(request, "game.html", locals())
 
 def post_game(request):
     if request.method == 'POST':

@@ -9,12 +9,12 @@
     <style>
         html,body{height: 100%}
         #Game-info{position:relative;float:left;width:25%;height:100%}
-        #Game-info-1{height: 30%;overflow: auto}
-        #Game-info-2{height: 25%;overflow: auto}
-        #Game-info-3{height: 25%;overflow: auto}
-        #Game-info-4{height: 20%;overflow: auto}
+        #Game-info-1{height: 30%;overflow: auto;padding:10px}
+        #Game-info-2{height: 25%;overflow: auto;padding-left: 10px}
+        #Game-info-3{height: 25%;overflow: auto;padding-left: 10px;}
+        #Game-info-4{height: 20%;overflow: auto;padding-left: 10px;}
         #Main{position:relative;float:left;width: 50%;height: 100%}
-        #Rule{height: 15%}
+        #Rule{height: 15%;padding-top: 10px;}
         #Self-info{position:relative;float:left;width: 25%;height: 100%}
         #Self-info-1{height: 40%;overflow: auto}
         #Self-info-2{height: 20%;overflow: auto}
@@ -32,9 +32,30 @@
         </div>
         <div id="Game-info-2">
             <p>当前信息：</p>
-            <p>(这里只显示一条信息，以下都是举例)夜晚，请等待</p>
-            <p>（举例）白天，警上发言，xxx正在发言/遗言</p>
-            <p>（举例）白天，公投阶段，请投票</p>
+            {% if wolf_move %}
+                <p class="Game-info-2-text">夜晚，狼人行动，其余玩家请等待</p>
+            {% endif %}
+            {% if witch_move %}
+                <p class="Game-info-2-text">夜晚，女巫行动，其余玩家请等待</p>
+            {% endif %}
+            {% if seer_move %}
+                <p class="Game-info-2-text">夜晚，预言家行动，其余玩家请等待</p>
+            {% endif %}
+            {% if police_move %}
+                <p class="Game-info-2-text">白天，即将开始警长竞选，请选择是否要竞选警长</p>
+            {% endif %}
+            {% if speak_move %}
+                <p class="Game-info-2-text">白天，请{{speaker}}号发言</p>
+            {% endif %}
+            {% if police_vote_move %}
+                <p class="Game-info-2-text">白天，警长投票，请选择心目中的警长</p>
+            {% endif%}
+            {% if police_choose_move %}
+                <p class="Game-info-2-text">白天，{{police}}号当选警长，请选择警左或者警右发言</p>
+            {% endif%}
+            {% if vote_move %}
+                <p class="Game-info-2-text">白天，公投阶段，请选择放逐目标</p>
+            {% endif%}
         </div>
         <div id="Game-info-3">
             <p>获得信息：</p>
@@ -42,6 +63,9 @@
             <p>（举例）xxx玩家夜晚死亡！</p>
             <p>（举例）1,2,3,4投票给5号玩家</p>
             <p>（举例）xxx玩家被公投出局！</p>
+            {% for vote in votes %}
+            <p>{{vote.seat}}投票给{{vote.target}}号玩家</p>
+            {% endfor %}
         </div>
         <div id="Game-info-4">
             <h1>倒计时：10秒</h1>
@@ -58,16 +82,124 @@
             <canvas id="MainCanvas" width="600" height="500">
             </canvas>
         </div>
-        <div>
-            只是放在这里测试技能
-            <input type="button" value="杀人" id="btn-kill">
-            <input type="button" value="投警长票" id="btn-police">
-            <input type="button" value="投放逐票" id="btn-out">
-            <input type="button" value="预言" id="btn-seer">
-            <input type="button" value="解药" id="btn-treat">
-            <input type="button" value="毒药" id="btn-poison">
-            <input type="button" value="开枪" id="btn-gun">
-        </div>
+        <form action="/post_game/" method="post">
+            {% csrf_token %}
+            <div>
+                <input type = 'number' name = 'target'/>
+                <input type= "submit"  name = 'action' value="狼刀" id="btn-kill">
+                <input type="button" value="投警长票" id="btn-police">
+                <input type="button" value="投放逐票" id="btn-out">
+                <input type="submit" name = 'action' value="预言家" id="btn-seer">
+                <input type="submit" name = 'action' value="女巫救" id="btn-treat">
+                <input type="submit" name = 'action' value="女巫毒" id="btn-poison">
+                <input type="button" value="开枪" id="btn-gun">
+            </div>
+
+            {% for user in userList%}
+    <p>{{user.seat}} : {{ user.user.username }} ({{user.character_name}})({{ user.alive }})</p>
+    {% endfor %}
+            <form action="/post_game/" method="post">
+    {% csrf_token %}
+    <input type = 'submit' name = 'action' value="创建游戏"/>
+    <input type = 'submit' name = 'action' value="白天"/>
+    <input type = 'submit' name = 'action' value="黑夜"/>
+    </form>
+    {% if wolf_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+        <input type = 'number' name = 'target'/>
+        <input type = 'submit' name = 'action' value="狼刀"/>
+        <input type = 'submit' name = 'action' value="空刀"/>
+    </form>
+    {% endif %}
+    {% if speak_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+        <input type = 'submit' name = 'action' value="过"/>
+        </form>
+    {% endif %}
+    {% if police_choose_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+        <input type = 'submit' name = 'action' value="警左"/>
+        <input type = 'submit' name = 'action' value="警右"/>
+        </form>
+    {% endif %}
+    {% if police_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+            <input type = 'submit' name = 'action' value="随机上警"/>
+        </form>
+    {% for voter in voters %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+            {{ voter }} :
+            <input type = 'number' name = 'voter' value={{voter}} hidden/>
+            <input type = 'submit' name = 'action' value="上警"/>
+            <input type = 'submit' name = 'action' value="不上警"/>
+        </form>
+    {% endfor %}
+    {% endif %}
+    {% if vote_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+            <input type = 'submit' name = 'action' value="随机投票"/>
+        </form>
+    {% for voter in voters %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+            {{ voter }} : <input type = 'number' name = 'target'/>
+            <input type = 'number' name = 'voter' value={{voter}} hidden/>
+            <input type = 'submit' name = 'action' value="投票"/>
+        </form>
+    {% endfor %}
+    {% endif %}
+    {% if police_vote_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+            <input type = 'submit' name = 'action' value="随机警上投票"/>
+        </form>
+    {% for voter in voters %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+            {{ voter }} : <input type = 'number' name = 'target'/>
+            <input type = 'number' name = 'voter' value={{voter}} hidden/>
+            <input type = 'submit' name = 'action' value="警上投票"/>
+        </form>
+    {% endfor %}
+    {% endif %}
+    {% if seer_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+        <input type = 'number' name = 'target'/>
+        <input type = 'submit' name = 'action' value="预言家"/>
+        </form>
+    {% endif %}
+    {% if witch_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+        {% if witchA %}
+        <p>昨天晚上{{victim}}号玩家死亡————</p>
+        <input type = 'submit' name = 'action' value="女巫救"/>
+        {% endif %}
+        {% if witchP %}
+        <input type = 'number' name = 'target'/>
+        <input type = 'submit' name = 'action' value="女巫毒"/>
+        {% endif %}
+        <input type = 'submit' name = 'action' value="女巫过"/>
+        </form>
+    {% endif %}
+    <div id="chatroom">
+        <div class = "list-group-item">
+            {% for chat in chats %}
+            <h4 class="list-group-item-heading">{{chat.sender}}:{{chat.content}}</h4>
+            <p class="list-group-item-text">{{chat.time}}</p>
+            <input type="hidden" class="chat_id" value="{{chat.id}}"/>
+            <br>
+            {% endfor %}
+            </div>
+    </div>
+        </form>
     </div>
     <div id="Self-info">
         <div id="Self-info-1">
@@ -99,13 +231,13 @@
         this.name = name;
         this.head = head;
         this.identity = identity;
+        this.alive = true;
         this.suspect = 0;
     }
     //全局变量
     var canvas = document.getElementById("MainCanvas");
     var ctx = canvas.getContext("2d");
     var GamePlayerNumber = 12;
-    var names = ["银色子弹", "神挡杀神", "意识流", "阿姆斯特朗", "东方不败"];
     var suspects = ["未知","村民","狼人","预言家","女巫","猎人","白痴"];
     var circles = [];
     var players = [];
@@ -127,14 +259,18 @@
         circles.push(circle);
 
         var player = new Player();
-        player.name = names[parseInt(Math.random()*names.length, 10)];
+        player.name = null;
         player.identity = null;
         var head = new Image();
         head.src = '/static/images/head'+(i%4)+".jpg";
         player.head = head;
         players.push(player);
-        //console.log(""+i);
     }
+    {% for user in userList %}
+        players[{{user.seat}}].name = "{{user.user.username}}";
+        players[{{user.seat}}].identity = "{{user.character_name}}";
+    {% endfor %}
+
     Draw();
     function Draw(){
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -171,14 +307,13 @@
             txt = ""+suspects[players[i].suspect];
             ctx.fillText(txt,circle.x-18, circle.y+15);
             //police
-            if(i==9){
-                var x1 = 300 + Math.cos(2*Math.PI / GamePlayerNumber * i) * 100;
-                var y1 = 200 + Math.sin(2*Math.PI / GamePlayerNumber * i) * 100;
+            if(i=={{police}})
+            {
+                var x1 = 300 + Math.cos(2 * Math.PI / GamePlayerNumber * i) * 100;
+                var y1 = 200 + Math.sin(2 * Math.PI / GamePlayerNumber * i) * 100;
                 ctx.drawImage(img_police, x1, y1, 30, 30);
             }
         }
-
-
 
         if(selectPlayer != -1){
             ctx.fillStyle = "#000";
@@ -256,5 +391,19 @@
     document.getElementById("btn-gun").onclick = function(e){
         clickType = 2;
     };
+
+    function updateMsg(){
+    $.post(
+        "/get_syscommand/",
+        {
+            last_chat_id: $(".chat_id").last().val()
+        },
+        function(data){
+            $('.list-group-item').append(data);
+        }
+    );
+        setTimeout("updateMsg()", 3000);
+    }
+    updateMsg();
 </script>
 </html>
