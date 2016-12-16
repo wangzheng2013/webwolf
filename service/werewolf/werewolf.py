@@ -228,6 +228,7 @@ class werewolf_game():
     def Wolf(self, target):
         """ 狼人执行技能 """
         # 是否存在狼人,存在则询问狼是否杀人 target < 0 表示空刀
+        self.__day = self.__day + 1 # 狼刀人表示新的一天开始了
         tmp = 0
         for i in range(self.__num):
             if (self.character[i].isWolf()) and (self.character[i].alive):
@@ -299,12 +300,12 @@ class werewolf_game():
             target = randint(0, self.__num - 1)
         return target
 
+
     def GoThroughNight(self):
         """ 晚上各角色执行技能(随机，测试用) """
         if (self.isFinished() != 0):
             return
-        self.__day = self.__day + 1
-        self.log.addLog('night %d' % self.__day)
+        self.log.addLog('night %d' % (self.__day + 1))
         # 狼人杀人
         self.Wolf(self.randomAlive())
         # 预言家验人
@@ -441,6 +442,28 @@ class werewolf_game():
         self.log.addLog('%dth player exile' % killPlayer)
         self.kill(killPlayer, werewolf_character.DEATH.EXILE)
 
+    def setPolice(self, list):
+        tmp = []
+        for i in range(self.__num):
+            tmp.append(0)
+        maxn = 0
+        for vote in list:
+            tmp[vote['target']] = tmp[vote['target']] + 1
+            if tmp[vote['target']] > tmp[maxn]:
+                maxn = vote['target']
+        self.__Police = int(maxn)
+
+    def exile(self, list):
+        tmp = []
+        for i in range(self.__num):
+            tmp.append(0)
+        maxn = 0
+        for vote in list:
+            tmp[vote['target']] = tmp[vote['target']] + 1
+            if tmp[vote['target']] > tmp[maxn]:
+                maxn = vote['target']
+        self.kill(maxn, werewolf_character.DEATH.EXILE)
+
     # 导出信息
     def characterList(self):
         list = []
@@ -456,3 +479,32 @@ class werewolf_game():
 
     def getWitchA(self):
         return self.__WitchAntidote
+
+    def getDay(self):
+        return self.__day
+
+    def getNum(self):
+        return self.__num
+
+    def getAliveNum(self):
+        ans = 0
+        for i in range(self.__num):
+            if self.character[i].alive:
+                ans = ans + 1
+        return ans
+
+    def getAliveList(self):
+        ans = []
+        for i in range(self.__num):
+            if self.character[i].alive:
+                ans.append(i)
+        return ans
+
+    def getAllList(self):
+        ans = []
+        for i in range(self.__num):
+            ans.append(i)
+        return ans
+
+    def getPolice(self):
+        return self.__Police

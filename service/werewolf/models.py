@@ -8,7 +8,18 @@ class Game2User(models.Model):
     user = models.ForeignKey(User, related_name='sitting')
     character = models.IntegerField(default=0)
     def __unicode__(self):
-        return u'%s' % self.id
+        return u'%s' % self.gameId
+
+class userVote(models.Model):
+    """
+    记录票型
+    """
+    gameId = models.IntegerField(default=0)
+    seat = models.IntegerField(default=0)
+    vote = models.IntegerField(default=-1)
+    day = models.IntegerField(default=0)
+    def __unicode__(self):
+        return u'%s' % self.gameId
 
 class GameInfo(models.Model):
     gameId = models.IntegerField(default=0)

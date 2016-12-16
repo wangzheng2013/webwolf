@@ -18,6 +18,62 @@
         <input type = 'submit' name = 'action' value="空刀"/>
         </form>
     {% endif %}
+    {% if speak_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+        <input type = 'submit' name = 'action' value="过"/>
+        </form>
+    {% endif %}
+    {% if police_choose_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+        <input type = 'submit' name = 'action' value="警左"/>
+        <input type = 'submit' name = 'action' value="警右"/>
+        </form>
+    {% endif %}
+    {% if police_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+            <input type = 'submit' name = 'action' value="随机上警"/>
+        </form>
+    {% for voter in voters %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+            {{ voter }} :
+            <input type = 'number' name = 'voter' value={{voter}} hidden/>
+            <input type = 'submit' name = 'action' value="上警"/>
+            <input type = 'submit' name = 'action' value="不上警"/>
+        </form>
+    {% endfor %}
+    {% endif %}
+    {% if vote_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+            <input type = 'submit' name = 'action' value="随机投票"/>
+        </form>
+    {% for voter in voters %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+            {{ voter }} : <input type = 'number' name = 'target'/>
+            <input type = 'number' name = 'voter' value={{voter}} hidden/>
+            <input type = 'submit' name = 'action' value="投票"/>
+        </form>
+    {% endfor %}
+    {% endif %}
+    {% if police_vote_move %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+            <input type = 'submit' name = 'action' value="随机警上投票"/>
+        </form>
+    {% for voter in voters %}
+    <form action="/post_game/" method="post">
+        {% csrf_token %}
+            {{ voter }} : <input type = 'number' name = 'target'/>
+            <input type = 'number' name = 'voter' value={{voter}} hidden/>
+            <input type = 'submit' name = 'action' value="警上投票"/>
+        </form>
+    {% endfor %}
+    {% endif %}
     {% if seer_move %}
     <form action="/post_game/" method="post">
         {% csrf_token %}
