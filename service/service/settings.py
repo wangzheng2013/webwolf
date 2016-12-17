@@ -28,7 +28,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 ALLOWED_HOSTS.append('*');
 
-SESSION_COOKIE_AGE = 60*10
 # Application definition
 
 INSTALLED_APPS = [
@@ -82,7 +81,7 @@ DATABASES = {
        "ENGINE": "django.db.backends.mysql",
         "NAME": "werewolf",
         "USER": "root",
-        "PASSWORD": "chen134920",
+        "PASSWORD": "",
         "HOST": "127.0.0.1",
         "PORT": "3306",
     }
