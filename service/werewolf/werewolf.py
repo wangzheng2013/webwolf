@@ -263,6 +263,7 @@ class werewolf_game():
             return
         seePlayer = target
         self.log.addLog('seer decided to predict %dth player' % seePlayer)
+        return self.character[target].isWolf()
 
     def witch(self, target):
         """ 女巫执行技能 """
@@ -471,6 +472,7 @@ class werewolf_game():
             if tmp[vote['target']] > tmp[maxn]:
                 maxn = vote['target']
         self.kill(maxn, werewolf_character.DEATH.EXILE)
+        return maxn
 
     # 导出信息
     def characterList(self):

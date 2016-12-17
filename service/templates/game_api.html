@@ -36,6 +36,7 @@
         {% csrf_token %}
             <input type = 'submit' name = 'action' value="随机上警"/>
         </form>
+    {{voters}}
     {% for voter in voters %}
     <form action="/post_game/" method="post">
         {% csrf_token %}
