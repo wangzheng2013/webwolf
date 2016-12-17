@@ -40,23 +40,122 @@ def game_api(request):
     vote_move = False
     police_move = False
     police_choose_move = False
+    police_vote_move = False
     victim = game.getVictim()
     witchA = game.getWitchA()
     witchP = game.getWitchP()
     police = game.getPolice()
-    deathLastNight = game.getAllDeath()
     allAliveState = game.getAllAliveState()
     voters = []
     speaker = 0
     for chat in chats:
         system_command = eval(chat.content)
-        if system_command['command'] == 'Werewolf':
-            wolf_move = True
         if system_command['command'] == 'Witch':
             witch_move = True
         if system_command['command'] == 'Seer':
             seer_move = True
+
+        if system_command['command'] == 'PoliceSpeak' or system_command['command'] == 'Speak' or system_command['command'] == 'Last_words_Night' or system_command['command'] == 'Last_words_Day':
+            # 状态 1 上警  2 退水  0 警下 [0~3] 还没覆盖过  [4~7]覆盖过
+            speak_move = True
+            speaker = system_command['speaker']
+            if int(system_command['state'][speaker]) > 3:
+                # 发言完毕 下一阶段
+                tmp = system_command['state']
+                if system_command['command'] == 'PoliceSpeak':
+                    system_command = {}
+                    system_command['command'] = 'PoliceVote'
+                    system_command['state'] = tmp
+                if system_command['command'] == 'Speak':
+                    system_command = {}
+                    system_command['command'] = 'Vote'
+                    system_command['state'] = tmp
+                if system_command['command'] == 'Last_words_Night':
+                    system_command = {}
+                    system_command['command'] = 'Day'
+                if system_command['command'] == 'Last_words_Day':
+                    system_command = {}
+                    system_command['command'] = 'Werewolf'
+                speak_move = False
+                police_vote_move = True
+            else:
+                if system_command['clockwise'] == 0:
+                    # 号数递增发言
+                    if speaker >= game.getNum():
+                        speaker = 0
+                    while system_command['state'][speaker] != '1' and int(system_command['state'][speaker]) <= 3:
+                        s = system_command['state']
+                        system_command['state'] = ''
+                        if speaker > 0:
+                            system_command['state'] = system_command['state'] + s[0 : speaker]
+                        system_command['state'] = system_command['state'] + str(int(s[speaker]) + 4)
+                        if speaker < game.getNum() - 1:
+                            system_command['state'] = system_command['state'] + s[speaker + 1 : game.getNum()]
+                        speaker = speaker + 1
+                        if speaker >= game.getNum():
+                            speaker = 0
+                        system_command['speaker'] = speaker
+                    if int(system_command['state'][speaker]) > 3:
+                        # 发言完毕 下一阶段
+                        tmp = system_command['state']
+                        if system_command['command'] == 'PoliceSpeak':
+                            system_command = {}
+                            system_command['command'] = 'PoliceVote'
+                            system_command['state'] = tmp
+                        if system_command['command'] == 'Speak':
+                            system_command = {}
+                            system_command['command'] = 'Vote'
+                            system_command['state'] = tmp
+                        if system_command['command'] == 'Last_words_Night':
+                            system_command = {}
+                            system_command['command'] = 'Day'
+                        if system_command['command'] == 'Last_words_Day':
+                            system_command = {}
+                            system_command['command'] = 'Werewolf'
+                        speak_move = False
+                        police_vote_move = True
+                else:
+                    if speaker < 0:
+                        speaker = game.getNum() - 1
+                    while system_command['state'][speaker] != '1' and int(system_command['state'][speaker]) <= 3:
+                        s = system_command['state']
+                        system_command['state'] = ''
+                        if speaker > 0:
+                            system_command['state'] = system_command['state'] + s[0 : speaker]
+                        system_command['state'] = system_command['state'] + str(int(s[speaker]) + 4)
+                        if speaker < game.getNum() - 1:
+                            system_command['state'] = system_command['state'] + s[speaker + 1 : game.getNum()]
+                        speaker = speaker - 1
+                        if speaker < 0:
+                            speaker = game.getNum() - 1
+                        system_command['speaker'] = speaker
+                        if int(system_command['state'][speaker]) > 3:
+                            # 发言完毕 下一阶段
+                            tmp = system_command['state']
+                            if system_command['command'] == 'PoliceSpeak':
+                                system_command = {}
+                                system_command['command'] = 'PoliceVote'
+                                system_command['state'] = tmp
+                            if system_command['command'] == 'Speak':
+                                system_command = {}
+                                system_command['command'] = 'Vote'
+                                system_command['state'] = tmp
+                            if system_command['command'] == 'Last_words_Night':
+                                system_command = {}
+                                system_command['command'] = 'Day'
+                            if system_command['command'] == 'Last_words_Day':
+                                system_command = {}
+                                system_command['command'] = 'Werewolf'
+                            speak_move = False
+                            police_vote_move = True
+            SystemCommand.objects.filter(gameId = gameId).delete()
+            syscommand = SystemCommand()
+            syscommand.gameId = gameId
+            syscommand.content = str(system_command)
+            syscommand.save()
+
         if system_command['command'] == 'Day':
+            police_vote_move = False
             if police == -1:
                 SystemCommand.objects.filter(gameId = gameId).delete()
                 list = game.getAliveList()
@@ -79,94 +178,12 @@ def game_api(request):
             else:
                 police_choose_move = True
 
+        if system_command['command'] == 'Werewolf':
+            wolf_move = True
+            police_vote_move = False
 
-        if system_command['command'] == 'PoliceSpeak' or system_command['command'] == 'Speak':
-            # 状态 1 上警  2 退水  0 警下 [0~3] 还没覆盖过  [4~7]覆盖过
-            speak_move = True
-            speaker = system_command['speaker']
-            if int(system_command['state'][speaker]) > 3:
-                # 发言完毕 下一阶段
-                tmp = system_command['state']
-                if system_command['command'] == 'PoliceSpeak':
-                    system_command = {}
-                    system_command['command'] = 'PoliceVote'
-                else:
-                    system_command = {}
-                    system_command['command'] = 'Vote'
-                system_command['state'] = tmp
-                speak_move = False
-                police_vote_move = True
-            else:
-                if system_command['clockwise'] == 0:
-                    # 号数递增发言
-                    if speaker >= game.getNum():
-                        speaker = 0
-                    while system_command['state'][speaker] != '1':
-                        s = system_command['state']
-                        system_command['state'] = ''
-                        if speaker > 0:
-                            system_command['state'] = system_command['state'] + s[0 : speaker]
-                        system_command['state'] = system_command['state'] + str(int(s[speaker]) + 4)
-                        if speaker < game.getNum() - 1:
-                            system_command['state'] = system_command['state'] + s[speaker + 1 : game.getNum()]
-                        speaker = speaker + 1
-                        if speaker >= game.getNum():
-                            speaker = 0
-                        system_command['speaker'] = speaker
-                    if int(system_command['state'][speaker]) > 3:
-                        # 发言完毕 下一阶段
-                        tmp = system_command['state']
-                        if system_command['command'] == 'PoliceSpeak':
-                            system_command = {}
-                            system_command['command'] = 'PoliceVote'
-                        else:
-                            system_command = {}
-                            system_command['command'] = 'Vote'
-                        system_command['state'] = tmp
-                        speak_move = False
-                        police_vote_move = True
-                else:
-                    if speaker < 0:
-                        speaker = game.getNum() - 1
-                    while system_command['state'][speaker] != '1':
-                        s = system_command['state']
-                        system_command['state'] = ''
-                        if speaker > 0:
-                            system_command['state'] = system_command['state'] + s[0 : speaker]
-                        system_command['state'] = system_command['state'] + str(int(s[speaker]) + 4)
-                        if speaker < game.getNum() - 1:
-                            system_command['state'] = system_command['state'] + s[speaker + 1 : game.getNum()]
-                        speaker = speaker - 1
-                        if speaker < 0:
-                            speaker = game.getNum() - 1
-                        system_command['speaker'] = speaker
-                        if int(system_command['state'][speaker]) > 3:
-                            # 发言完毕 下一阶段
-                            tmp = system_command['state']
-                            if system_command['command'] == 'PoliceSpeak':
-                                system_command = {}
-                                system_command['command'] = 'PoliceVote'
-                            else:
-                                system_command = {}
-                                system_command['command'] = 'Vote'
-                            system_command['state'] = tmp
-                            speak_move = False
-                            police_vote_move = True
-            SystemCommand.objects.filter(gameId = gameId).delete()
-            syscommand = SystemCommand()
-            syscommand.gameId = gameId
-            syscommand.content = str(system_command)
-            syscommand.save()
-
-    day = 0
-    voteList = []
-    for i in range(game.getNum()):
-        voteList.append(False)
-    if system_command['command'] == 'Police':
-        police_move = True
-        day = 100
-    if system_command['command'] == 'PoliceVote':
-        police_vote_move = True
+        day = 0
+        voteList = []
         for i in range(game.getNum()):
             voteList.append(False)
         if system_command['command'] == 'Police':
@@ -174,14 +191,19 @@ def game_api(request):
             day = 100
         if system_command['command'] == 'PoliceVote':
             police_vote_move = True
+            day = 101
             for i in range(game.getNum()):
                 if system_command['state'][i] != '4':
                     # 不在警下无法投票
                     voteList[i] = True
-            day = 101
         if system_command['command'] == 'Vote':
             vote_move = True
+            police_vote_move = False
             day = game.getDay()
+            aliveList = game.getAliveList()
+            for i in range(game.getNum()):
+                if i not in aliveList:
+                    voteList[i] = True
         votes = userVote.objects.filter(gameId = 1, day = day)
         for vote in votes:
             voteList[vote.seat] = True
@@ -189,7 +211,7 @@ def game_api(request):
             if voteList[i] == False:
                 voters.append(i)
     votes = userVote.objects.filter(gameId = 1)
-    return render(request, "game.html", locals())
+    return render(request, "game_api.html", locals())
 
 
 def post_game(request):
@@ -277,7 +299,11 @@ def post_game(request):
             if command == u'狼刀' or command == u'空刀':
                 # 从数据库中拿出相应的游戏信息，处理后返回给数据库
                 if command == u'狼刀':
-                    target = int(request.POST.get('target'))
+                    tmp = request.POST.get('target')
+                    if len(tmp) == 0:
+                        target = -1
+                    else:
+                        target = int(tmp)
                     game.Wolf(target = target)
                 else:
                     game.Wolf(target = -1)
@@ -322,15 +348,17 @@ def post_game(request):
             if command == u'预言家':
                 # 从数据库中拿出相应的游戏信息，处理后返回给数据库
                 target = int(request.POST.get('target'))
-                game.seer(target = target)
+                isWolf = game.seer(target = target)
                 SystemCommand.objects.filter(gameId = gameId).delete()
                 syscommand = SystemCommand()
                 syscommand.gameId = gameId
                 tmp = {}
                 if game.getDay() == 1:
                     tmp['command'] = 'Police'
+                    tmp['isWolf'] = isWolf
                 else:
                     tmp['command'] = 'Day'
+                    tmp['isWolf'] = isWolf
                 syscommand.content = str(tmp)
                 syscommand.save()
 
@@ -425,6 +453,8 @@ def post_game(request):
                 vote = userVote()
                 vote.seat = int(request.POST.get('voter'))
                 vote.vote = int(request.POST.get('target'))
+                if vote.vote == None:
+                    vote.vote = -1
                 vote.gameId = gameId
                 vote.day = game.getDay()
                 if command == u'警上投票':
@@ -433,6 +463,7 @@ def post_game(request):
                 votes = userVote.objects.filter(gameId = gameId, day = vote.day)
                 if len(votes) == game.getAliveNum():
                     # 所有人都投票完毕
+                    exileP = -1
                     if command == u'警上投票':
                         tmp = []
                         for vote in votes:
@@ -442,15 +473,27 @@ def post_game(request):
                         tmp = []
                         for vote in votes:
                             tmp.append({'index': vote.seat, 'target' : vote.vote})
-                        game.exile(tmp)
+                        exileP = game.exile(tmp)
                     SystemCommand.objects.filter(gameId = gameId).delete()
                     syscommand = SystemCommand()
                     syscommand.gameId = gameId
                     tmp = {}
+                    tmp['first'] = 0
+                    tmp['speaker'] = 0
+                    tmp['clockwise'] = 0
+                    tmp['state'] = ''
+                    deathList = game.getAllDeath()
+                    if exileP != -1:
+                        deathList.append(exileP)
+                    for i in range(game.getNum()):
+                        if i in deathList:
+                            tmp['state'] = tmp['state'] + '1'
+                        else:
+                            tmp['state'] = tmp['state'] + '0'
                     if command == u'警上投票':
-                        tmp['command'] = 'Day'
+                        tmp['command'] = 'Last_words_Night'
                     else:
-                        tmp['command'] = 'Werewolf'
+                        tmp['command'] = 'Last_words_Day'
                     syscommand.content = str(tmp)
                     syscommand.save()
 
@@ -470,6 +513,7 @@ def post_game(request):
                 votes = userVote.objects.filter(gameId = gameId, day = vote_day)
                 if len(votes) == game.getAliveNum():
                     # 所有人都投票完毕
+                    exileP = -1
                     if command == u'随机警上投票':
                         tmp = []
                         for vote in votes:
@@ -479,15 +523,27 @@ def post_game(request):
                         tmp = []
                         for vote in votes:
                             tmp.append({'index': vote.seat, 'target' : vote.vote})
-                        game.exile(tmp)
+                        exileP = game.exile(tmp)
                     SystemCommand.objects.filter(gameId = gameId).delete()
                     syscommand = SystemCommand()
                     syscommand.gameId = gameId
                     tmp = {}
+                    tmp['first'] = 0
+                    tmp['speaker'] = 0
+                    tmp['clockwise'] = 0
+                    tmp['state'] = ''
+                    deathList = game.getAllDeath()
+                    if exileP != -1:
+                        deathList.append(exileP)
+                    for i in range(game.getNum()):
+                        if i in deathList:
+                            tmp['state'] = tmp['state'] + '1'
+                        else:
+                            tmp['state'] = tmp['state'] + '0'
                     if command == u'随机警上投票':
-                        tmp['command'] = 'Day'
+                        tmp['command'] = 'Last_words_Night'
                     else:
-                        tmp['command'] = 'Werewolf'
+                        tmp['command'] = 'Last_words_Day'
                     syscommand.content = str(tmp)
                     syscommand.save()
             gameInfo.content = game.gameInfoEncode()
