@@ -225,10 +225,10 @@
             <p>狼人战术区（情侣区暂时不留位置了）</p>
         </div>
         <div id="Self-info-3">
-            <div id="Id-1">你的身份是：猎人<img src="/static/images/hunter.jpg" width="120px" height="120px"></div>
+            <div id="Id-1"><p id="Id-identity"></p><p id="Id-seat"></p></div>
             <div id="Id-2">
-                <span>猎枪：若你死亡，在白天，可以开枪杀死一名玩家，被毒无法开枪</span><br>
-                <span>自爆：好吧，这只是另外一个技能</span>
+                <span id="Skill-1"></span><br>
+                <span id="Skill-2"></span>
             </div>
         </div>
     </div>
@@ -266,6 +266,11 @@
     var img_police = new Image();
     var second = 0;
     img_police.src = "/static/images/police.jpg";
+    var myself = new Player();
+    myself.name = "{{username}}";
+    var myseat = -1;
+    console.log(myself.name);
+
     //创建游戏玩家
     for(var i=0;i<GamePlayerNumber;i++)
     {
@@ -287,6 +292,51 @@
         players[{{user.seat}}].name = "{{user.user.username}}";
         players[{{user.seat}}].identity = "{{user.character_name}}";
     {% endfor %}
+
+
+    for(i=0;i<GamePlayerNumber;i++)
+    {
+        if(players[i].name == myself.name)
+        {
+            myself = players[i];
+            myseat = i+1;
+            break;
+        }
+    }
+    $('#Id-identity').append("你的身份是："+myself.identity);
+    $('#Id-seat').append("你的座位是："+myseat);
+    if(myself.identity == 'VILLEGER')
+    {
+        $('#Id-1').append("<img src='/static/images/villager.jpg' width='120px' height='120px'>");
+        $('#Skill-1').append('投票权：你可以投出你作为公民庄严的一票');
+    }
+    else if(myself.identity == 'WEREWOLF')
+    {
+        $('#Id-1').append("<img src='/static/images/commonwerewolf.jpg' width='120px' height='120px'>");
+        $('#Skill-1').append('杀手：每到夜晚，你可以和队友统一意见，杀死一名玩家');
+    }
+    else if(myself.identity == 'SEER')
+    {
+        $('#Id-1').append("<img src='/static/images/seer.jpg' width='120px' height='120px'>");
+        $('#Skill-1').append('预言：夜晚，你可以查看一名玩家的身份');
+    }
+     else if(myself.identity == 'WITCH')
+    {
+        $('#Id-1').append("<img src='/static/images/witch.jpg' width='120px' height='120px'>");
+        $('#Skill-1').append('解药：夜晚，你可以救活一名濒临死亡的玩家');
+        $('#Skill-2').append('毒药：夜晚，你可以毒杀一名玩家');
+    }
+    else if(myself.identity == 'HUNTER')
+    {
+        $('#Id-1').append("<img src='/static/images/hunter.jpg' width='120px' height='120px'>");
+        $('#Skill-1').append('猎枪：若你死亡，在白天，可以开枪杀死一名玩家，被毒无法开枪');
+    }
+    else if(myself.identity == 'IDIOT')
+    {
+        $('#Id-1').append("<img src='/static/images/idot.jpg' width='120px' height='120px'>");
+         $('#Skill-1').append('白痴：若你白天因为被投票公投出局，免受放逐');
+    }
+
 
     Draw();
     function Draw(){
