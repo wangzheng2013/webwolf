@@ -61,13 +61,11 @@
         </div>
         <div id="Game-info-3">
             <p>获得信息：</p>
-            <p>（举例）预言到xxx是狼人</p>
-            <p>（举例）xxx玩家夜晚死亡！</p>
-            <p>（举例）1,2,3,4投票给5号玩家</p>
-            <p>（举例）xxx玩家被公投出局！</p>
+            <p>{{deathLastNight}}号玩家已经死亡</p>
             {% for vote in votes %}
             <p>{{vote.seat}}投票给{{vote.vote}}号玩家</p>
             {% endfor %}
+
         </div>
         <div id="Game-info-4">
             <span class="timer">倒计时：</span><span id="time" class="timer"></span><span class="timer">秒</span>
@@ -86,18 +84,10 @@
         </div>
         <form action="/post_game/" method="post">
             {% csrf_token %}
-            <div>
-                <input type = 'number' name = 'target'/>
-                <input type= "submit"  name = 'action' value="狼刀" id="btn-kill">
-                <input type="button" value="投警长票" id="btn-police">
-                <input type="button" value="投放逐票" id="btn-out">
-                <input type="submit" name = 'action' value="预言家" id="btn-seer">
-                <input type="submit" name = 'action' value="女巫救" id="btn-treat">
-                <input type="submit" name = 'action' value="女巫毒" id="btn-poison">
-                <input type="button" value="开枪" id="btn-gun">
+            <div id="User-action">
             </div>
-
-            {% for user in userList%}
+        </form>
+    {% for user in userList%}
     <p>{{user.seat}} : {{ user.user.username }} ({{user.character_name}})({{ user.alive }})</p>
     {% endfor %}
             <form action="/post_game/" method="post">
@@ -238,7 +228,6 @@
         this.x = x;
         this.y = y;
         this.radius = radius;
-        //this.color = color;
         this.isSelected = false;
         this.status = 0;
     }
@@ -299,7 +288,7 @@
         if(players[i].name == myself.name)
         {
             myself = players[i];
-            myseat = i+1;
+            myseat = i;
             break;
         }
     }
@@ -314,17 +303,37 @@
     {
         $('#Id-1').append("<img src='/static/images/commonwerewolf.jpg' width='120px' height='120px'>");
         $('#Skill-1').append('杀手：每到夜晚，你可以和队友统一意见，杀死一名玩家');
+        {% if wolf_move %}
+        $('#User-action').append("<input type = 'number' id='input-number' name = 'target'/>");
+        $('#User-action').append("<input type = 'submit' id='btn-kill' name = 'action' value='狼刀'/>");
+        $('#User-action').append("<input type = 'submit' name = 'action' value='空刀'/>");
+        {% endif %}
     }
     else if(myself.identity == 'SEER')
     {
         $('#Id-1').append("<img src='/static/images/seer.jpg' width='120px' height='120px'>");
         $('#Skill-1').append('预言：夜晚，你可以查看一名玩家的身份');
+        {% if seer_move %}
+            $('#User-action').append("<input type = 'number' name = 'target'/>");
+            $('#User-action').append("<input type = 'submit' name = 'action' value='预言家'/>");
+        {% endif %}
     }
      else if(myself.identity == 'WITCH')
     {
         $('#Id-1').append("<img src='/static/images/witch.jpg' width='120px' height='120px'>");
         $('#Skill-1').append('解药：夜晚，你可以救活一名濒临死亡的玩家');
         $('#Skill-2').append('毒药：夜晚，你可以毒杀一名玩家');
+        {% if witch_move %}
+            {% if witchA %}
+            $('#User-action').append("<p>昨天晚上{{victim}}号玩家死亡</p>");
+            $('#User-action').append("<input type = 'submit' name = 'action' value='女巫救'/>");
+            {% endif %}
+        {% if witchP %}
+            $('#User-action').append("<input type = 'number' name = 'target'/>");
+            $('#User-action').append("<input type = 'submit' name = 'action' value='女巫毒'/>");
+        {% endif %}
+            $('#User-action').append("<input type = 'submit' name = 'action' value='女巫过'/>");
+        {% endif %}
     }
     else if(myself.identity == 'HUNTER')
     {
@@ -334,9 +343,22 @@
     else if(myself.identity == 'IDIOT')
     {
         $('#Id-1').append("<img src='/static/images/idot.jpg' width='120px' height='120px'>");
-         $('#Skill-1').append('白痴：若你白天因为被投票公投出局，免受放逐');
+        $('#Skill-1').append('白痴：若你白天因为被投票公投出局，免受放逐');
     }
-
+    {% if police_move %}
+        $('#User-action').append("<input type = 'number' name = 'voter' value='"+ myseat +"' hidden/>");
+        $('#User-action').append("<input type = 'submit' name = 'action' value='上警'/>");
+        $('#User-action').append("<input type = 'submit' name = 'action' value='不上警'/>");
+     {% endif %}
+    {% if speak_move %}
+        if({{speaker}} == myseat)
+            $("#User-action").append("<input type = 'submit' name = 'action' value='过'/>");
+    {% endif %}
+    {% if police_choose_move %}
+        if({{police}} == myseat)
+            $("#User-action").append("<input type = 'submit' name = 'action' value='警左'/>");
+            $("#User-action").append("<input type = 'submit' name = 'action' value='警右'/>");
+    {% endif %}
 
     Draw();
     function Draw(){
@@ -369,7 +391,7 @@
             //txt
             ctx.fillStyle = "#000";
             ctx.font = "italic 15px sans-serif";
-            var txt = ""+(i+1);
+            var txt = ""+(i);
             ctx.fillText(txt, circle.x-5, circle.y);
             txt = ""+suspects[players[i].suspect];
             ctx.fillText(txt,circle.x-18, circle.y+15);
@@ -388,6 +410,11 @@
             txt = players[selectPlayer].name;
             ctx.fillText(txt,textx+30, texty-10);
         }
+
+        //alive
+        {% for user in userList %}
+            players[{{user.seat}}].alive = "{{user.alive}}";
+        {% endfor %}
     }
     canvas.onmousemove = function(e){
         var bbox = canvas.getBoundingClientRect();
@@ -437,7 +464,7 @@
         e.preventDefault();
     };
 
-    document.getElementById("btn-kill").onclick = function(e){
+    /*document.getElementById("btn-kill").onclick = function(e){
         clickType = 2;
     };
     document.getElementById("btn-police").onclick = function(e){
@@ -457,7 +484,7 @@
     };
     document.getElementById("btn-gun").onclick = function(e){
         clickType = 2;
-    };
+    };*/
 
     function updateMsg(){
     $.post(
