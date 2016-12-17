@@ -62,9 +62,8 @@
         <div id="Game-info-3">
             <p>获得信息：</p>
             <p>{{deathLastNight}}号玩家已经死亡</p>
-            {% for vote in votes %}
-            <p>{{vote.seat}}投票给{{vote.vote}}号玩家</p>
-            {% endfor %}
+            <p id="jingshang"></p>
+            <p id="baitian"></p>
 
         </div>
         <div id="Game-info-4">
@@ -253,7 +252,7 @@
     var preClickCircle = null;
     var clickType = 1;
     var img_police = new Image();
-    var second = 0;
+    var second = 60;
     img_police.src = "/static/images/police.jpg";
     var myself = new Player();
     myself.name = "{{username}}";
@@ -304,9 +303,9 @@
         $('#Id-1').append("<img src='/static/images/commonwerewolf.jpg' width='120px' height='120px'>");
         $('#Skill-1').append('杀手：每到夜晚，你可以和队友统一意见，杀死一名玩家');
         {% if wolf_move %}
-        $('#User-action').append("<input type = 'number' id='input-number' name = 'target'/>");
+        $('#User-action').append("<input type = 'number' id='input-number' name = 'target'value='0'/>");
         $('#User-action').append("<input type = 'submit' id='btn-kill' name = 'action' value='狼刀'/>");
-        $('#User-action').append("<input type = 'submit' name = 'action' value='空刀'/>");
+        $('#User-action').append("<input type = 'submit' id='btn-kong' name = 'action' value='空刀'/>");
         {% endif %}
     }
     else if(myself.identity == 'SEER')
@@ -314,8 +313,8 @@
         $('#Id-1').append("<img src='/static/images/seer.jpg' width='120px' height='120px'>");
         $('#Skill-1').append('预言：夜晚，你可以查看一名玩家的身份');
         {% if seer_move %}
-            $('#User-action').append("<input type = 'number' name = 'target'/>");
-            $('#User-action').append("<input type = 'submit' name = 'action' value='预言家'/>");
+            $('#User-action').append("<input type = 'number' name = 'target'value='0'/>");
+            $('#User-action').append("<input type = 'submit' name = 'action' id='btn-seer' value='预言家'/>");
         {% endif %}
     }
      else if(myself.identity == 'WITCH')
@@ -329,10 +328,10 @@
             $('#User-action').append("<input type = 'submit' name = 'action' value='女巫救'/>");
             {% endif %}
         {% if witchP %}
-            $('#User-action').append("<input type = 'number' name = 'target'/>");
+            $('#User-action').append("<input type = 'number' name = 'target' value='0'/>");
             $('#User-action').append("<input type = 'submit' name = 'action' value='女巫毒'/>");
         {% endif %}
-            $('#User-action').append("<input type = 'submit' name = 'action' value='女巫过'/>");
+            $('#User-action').append("<input type = 'submit' name = 'action' id='btn-nwguo'value='女巫过'/>");
         {% endif %}
     }
     else if(myself.identity == 'HUNTER')
@@ -346,19 +345,40 @@
         $('#Skill-1').append('白痴：若你白天因为被投票公投出局，免受放逐');
     }
     {% if police_move %}
+        if(myself.identity == 'SEER')
+            $('#User-action').append("true为是狼人,false为不是狼人,他是{{iswolf}}<br>");
         $('#User-action').append("<input type = 'number' name = 'voter' value='"+ myseat +"' hidden/>");
         $('#User-action').append("<input type = 'submit' name = 'action' value='上警'/>");
-        $('#User-action').append("<input type = 'submit' name = 'action' value='不上警'/>");
+        $('#User-action').append("<input type = 'submit' name = 'action' id='btn-bushangjing'value='不上警'/>");
      {% endif %}
     {% if speak_move %}
         if({{speaker}} == myseat)
-            $("#User-action").append("<input type = 'submit' name = 'action' value='过'/>");
+            $("#User-action").append("<input type = 'submit' name = 'action' id='btn-guo'value='过'/>");
     {% endif %}
     {% if police_choose_move %}
-        if({{police}} == myseat)
-            $("#User-action").append("<input type = 'submit' name = 'action' value='警左'/>");
+        if({{police}} == myseat){
+            $("#User-action").append("<input type = 'submit' name = 'action' id='btn-jingzuo' value='警左'/>");
             $("#User-action").append("<input type = 'submit' name = 'action' value='警右'/>");
+        }
     {% endif %}
+    {% if police_vote_move %}
+        $("#User-action").append("<input type = 'number' name = 'target' value='0'/>");
+        $('#User-action').append("<input type = 'number' name = 'voter' value='"+ myseat +"' hidden/>");
+        $('#User-action').append("<input type = 'submit' name = 'action' id='btn-jingtou'value='警上投票'/>");
+    {% endif %}
+
+    //alive
+    {% for user in userList %}
+    players[{{user.seat}}].alive = "{{user.alive}}";
+    console.log(""+players[{{user.seat}}].alive);
+    {% endfor %}
+    /*for(i=0;i<GamePlayerNumber;i++)
+    {
+        {% for vote in votes0 %}
+            <p>{{vote.seat}}投票给{{vote.vote}}号玩家</p>
+    {% endfor %}
+    }*/
+
 
     Draw();
     function Draw(){
@@ -367,6 +387,9 @@
         {
             var circle = circles[i];
             ctx.beginPath();
+            if(players[i].alive == "False"){
+                circle.status = -1;;
+            }
             if(circle.status == 0)
                 ctx.fillStyle = "#BCEE68";
             else if(circle.status == -1)
@@ -410,11 +433,6 @@
             txt = players[selectPlayer].name;
             ctx.fillText(txt,textx+30, texty-10);
         }
-
-        //alive
-        {% for user in userList %}
-            players[{{user.seat}}].alive = "{{user.alive}}";
-        {% endfor %}
     }
     canvas.onmousemove = function(e){
         var bbox = canvas.getBoundingClientRect();
@@ -503,7 +521,40 @@
     function timer()
     {
         if(second == 0){
+            if(myself.identity == 'WEREWOLF')
+            {
+                {% if wolf_move %}
+                document.getElementById('btn-kong').click();
+                {% endif %}
+            }
+            else if(myself.identity == 'SEER')
+            {
+                {% if seer_move %}
+                    document.getElementById('btn-seer').click();
+                {% endif %}
+            }
+            else if(myself.identity == 'WITCH')
+            {
+            {% if witch_move %}
+                document.getElementById('btn-nwguo').click();
+            {% endif %}
+            }
+            {% if police_move %}
+                document.getElementById("btn-bushangjing").click();
+            {% endif %}
+             {% if speak_move %}
+                 if({{speaker}} == myseat)
+                    document.getElementById("btn-guo").click();
+            {% endif %}
+            {% if police_vote_move %}
+                document.getElementById("btn-jingtou").click();
+            {% endif %}
+            {% if police_choose_move %}
+                if({{police}} == myseat)
+                    document.getElementById("btn-jingzuo").click();
+            {% endif %}
             second = 60;
+
         }
         $('#time').text(second);
         second--;

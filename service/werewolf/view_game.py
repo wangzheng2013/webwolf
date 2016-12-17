@@ -46,6 +46,7 @@ def game_api(request):
     witchP = game.getWitchP()
     police = game.getPolice()
     allAliveState = game.getAllAliveState()
+    deathLastNight = game.getAllDeath()
     voters = []
     speaker = 0
     for chat in chats:
@@ -210,8 +211,15 @@ def game_api(request):
         for i in range(game.getNum()):
             if voteList[i] == False:
                 voters.append(i)
-    votes = userVote.objects.filter(gameId = 1)
-    return render(request, "game_api.html", locals())
+        if system_command.has_key('isWolf'):
+            iswolf = system_command['isWolf']
+        else:
+            iswolf = -1
+    votes0 = userVote.objects.filter(gameId = 1, day = 0)
+    votes100 = userVote.objects.filter(gameId = 1, day = 100)
+    votes101 = userVote.objects.filter(gameId = 1, day = 101)
+
+    return render(request, "game.html", locals())
 
 
 def post_game(request):
