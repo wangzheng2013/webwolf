@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^home/$', Home),
     # room
     url(r'^room/$', room),
+    url(r'^post_room/$', post_room),
     url(r'^chat/$', chat),
     url(r'^get_chat/$', get_chat),
     url(r'^post_chat/$', post_chat),
