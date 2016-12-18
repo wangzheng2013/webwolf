@@ -19,8 +19,15 @@ def game_api(request):
     # 检查参数，正确则继续，错误则重定向到正确的参数
     username = request.user.username
     seat = request.GET.get('seat')
-    # 正式开始
+    if seat is None:
+        seat = -1
+    else:
+        seat = int(seat)
     gameId = 1
+    visitor = False
+    if len(Game2User.objects.filter(gameId = gameId, seat = seat, user = user)) == 0:
+        visitor = True
+    # 正式开始
     gameInfo = GameInfo.objects.filter(gameId = gameId)
     if len(gameInfo) == 0:
         content = '{}'
@@ -46,7 +53,8 @@ def game_api(request):
     witchP = game.getWitchP()
     police = game.getPolice()
     allAliveState = game.getAllAliveState()
-    deathLastNight = game.getAllDeath()
+    idiotShow = game.findIdiot()   # 若白痴展现则为白痴座位号，否则为-1
+    hunterGun = game.AbilityHunter() # True 表示猎人能开枪
     voters = []
     speaker = 0
     for chat in chats:
@@ -55,6 +63,9 @@ def game_api(request):
             witch_move = True
         if system_command['command'] == 'Seer':
             seer_move = True
+            deathLastNight = game.getAllDeath()
+            for i in deathLastNight:
+                allAliveState[i] = 1
 
         if system_command['command'] == 'PoliceSpeak' or system_command['command'] == 'Speak' or system_command['command'] == 'Last_words_Night' or system_command['command'] == 'Last_words_Day':
             # 状态 1 上警  2 退水  0 警下 [0~3] 还没覆盖过  [4~7]覆盖过
@@ -395,6 +406,25 @@ def post_game(request):
                     if tmp['speaker'] < 0:
                         tmp['speaker'] = game.getNum() - 1
                 syscommand.content = str(tmp)
+                syscommand.save()
+
+            if command == u'猎人开枪':
+                # 从数据库中拿出相应的游戏信息，处理后返回给数据库
+                target = int(request.POST.get('target'))
+                game.hunter(target)
+                syscommand = SystemCommand.objects.filter(gameId = gameId)[0]
+                SystemCommand.objects.filter(gameId = gameId).delete()
+                syscommand.save()
+
+            if command == u'狼人自爆':
+                # 从数据库中拿出相应的游戏信息，处理后返回给数据库
+                target = int(request.POST.get('target'))
+                game.boom(target)
+                syscommand = SystemCommand.objects.filter(gameId = gameId)[0]
+                tmp = eval(syscommand.content)
+                tmp['command'] = 'Werewolf'
+                syscommand.content = str(tmp)
+                SystemCommand.objects.filter(gameId = gameId).delete()
                 syscommand.save()
 
             if command == u'上警' or command == u'不上警':

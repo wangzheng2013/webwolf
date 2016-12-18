@@ -182,6 +182,19 @@
         <input type = 'submit' name = 'action' value="女巫过"/>
         </form>
     {% endif %}
+        {{seat}}
+        {% if hunterGun %}
+        <form action="/post_game/" method="post">
+        {% csrf_token %}
+        <input type = 'number' name = 'target'/>
+        <input type = 'submit' name = 'action' value="猎人开枪"/>
+        </form>
+        {% endif %}
+<form action="/post_game/" method="post">
+        {% csrf_token %}
+        <input type = 'number' name = 'target' value="{{seat}}" hidden/>
+        <input type = 'submit' name = 'action' value="狼人自爆"/>
+        </form>
     <div id="chatroom">
         <div class = "list-group-item">
             {% for chat in chats %}

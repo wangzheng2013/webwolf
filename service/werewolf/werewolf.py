@@ -179,7 +179,8 @@ class werewolf_game():
             # 猎人死亡
             if flag != werewolf_character.DEATH.POISONED_BY_WITCH:
                 # 可以开枪
-                self.hunter(self.randomAlive())
+                #self.hunter(self.randomAlive())
+                return 'hunter'
             else:
                 # 不可开枪
                 self.character[index].alive = False
@@ -188,6 +189,7 @@ class werewolf_game():
             self.character[index].alive = True
             self.__IdiotFaceUp = True
             self.log.addLog(u"God : %d号玩家为白痴神身份，免于放逐并变为灵魂状态"%index)
+        return 0
 
     def getAllDeath(self):
         ans = []
@@ -275,9 +277,9 @@ class werewolf_game():
             if (self.character[i].isWitch()) and (self.character[i].alive):
                 tmp = tmp + 1
         if (tmp == 0):
-            self.kill(victim, werewolf_character.DEATH.METHERED_BY_WOLVES)
-            return
+            return self.kill(victim, werewolf_character.DEATH.METHERED_BY_WOLVES)
         flag = True
+        return_value = 0 #传递猎人被刀能开枪的信息
         if (self.__WitchAntidote and target == -1):
             # 女巫可以使用解药
             # 使用解药
@@ -286,7 +288,7 @@ class werewolf_game():
             flag = False
         else:
             # 女巫没有不救或者没药
-            self.kill(victim, werewolf_character.DEATH.METHERED_BY_WOLVES)
+            return_value = self.kill(victim, werewolf_character.DEATH.METHERED_BY_WOLVES)
 
         if (self.__WitchPoison and target >= 0 and self.character[target].alive):
             # 使用毒药
@@ -294,6 +296,7 @@ class werewolf_game():
             killPlayer = target
             self.log.addLog('witch decided to poison %dth player' % killPlayer)
             self.kill(killPlayer, werewolf_character.DEATH.POISONED_BY_WITCH)
+        return return_value
 
     def hunter(self, target):
         """ 猎人执行技能 ： 执行条件满足后才会进入，不需判定执行前置条件 """
@@ -321,6 +324,9 @@ class werewolf_game():
         self.seer(self.randomAlive())
         # 女巫救人和毒人
         self.witch(self.randomAlive())
+
+    def boom(self, target):
+        self.kill(target, werewolf_character.DEATH.METHERED_BY_WOLVES)
 
     def GoThroughDay(self):
         """ 白天轮转 随机 测试用 """
@@ -473,6 +479,20 @@ class werewolf_game():
                 maxn = vote['target']
         self.kill(maxn, werewolf_character.DEATH.EXILE)
         return maxn
+
+    def findIdiot(self):
+        ans = -1
+        if self.__IdiotFaceUp:
+            for i in range(self.__num):
+                if self.character[i].isIdiot():
+                    ans = i
+        return ans
+
+    def AbilityHunter(self):
+        for i in range(self.__num):
+            if self.character[i].isHunter() and (not self.character[i].alive) and self.__HunterGun:
+                return True
+        return False
 
     # 导出信息
     def characterList(self):
