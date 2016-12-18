@@ -359,6 +359,10 @@
             if(players[i].alive == "False"){
                 circle.status = -1;;
             }
+            if({{idiotShow}} != -1){
+                if(players[i].identity == "IDIOT")
+                    circle.status = 2;
+            }
             if(circle.status == 0)
                 ctx.fillStyle = "#BCEE68";
             else if(circle.status == -1)
@@ -379,7 +383,6 @@
             ctx.stroke();
             ctx.closePath();
             ctx.fill();
-            //ctx.drawImage(players[i].head, circle.x - 30, circle.y - 30, 60, 60);
             //txt
             ctx.fillStyle = "#000";
             ctx.font = "italic 15px sans-serif";
@@ -400,6 +403,7 @@
             ctx.fillStyle = "#000000";
             ctx.font = "italic 15px sans-serif";
             txt = players[selectPlayer].name;
+            ctx.drawImage(players[selectPlayer].head, textx, texty-50, 30, 30);
             ctx.fillText(txt,textx+30, texty-10);
         }
     }
