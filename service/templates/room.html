@@ -74,6 +74,13 @@
         <p>{{user.username}}</p>
         {% endif %}
     {% endfor %}
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+    <form action="/post_room/" method="post">
+        {% csrf_token %}
+        <input type = 'number' name = 'gameId' value={{roomnum}} hidden/>
+        <input type = 'number' name = 'seat'/>
+        <input class="btn btn-warning" type = 'submit' name = 'action' value="加入游戏"/>
+    </form>
 {% endblock %}
 {% block js %}
 <script>
