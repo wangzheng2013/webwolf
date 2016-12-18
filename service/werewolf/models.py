@@ -50,3 +50,9 @@ class room2Game(models.Model):
     gameId = models.IntegerField(default=0)
     def __unicode__(self):
         return u'(%d, %d)' % (self.roomnum, self.gameId)
+
+class room2User(models.Model):
+    roomnum = models.IntegerField(default=0)
+    user = models.ForeignKey(User, related_name='in_room')
+    def __unicode__(self):
+        return u'(%d, %d)' % (self.roomnum, self.user.username)

@@ -107,6 +107,16 @@
             {% endfor %}
             </div>
     </div>
+<form action="/post_game/" method="post">
+        {% csrf_token %}
+        <input type = 'number' name = 'target'/>
+        <input type = 'submit' name = 'action' value="猎人开枪"/>
+        </form>
+<form action="/post_game/" method="post">
+        {% csrf_token %}
+        <input type = 'number' name = 'target' value="{{seat}}" hidden/>
+        <input type = 'submit' name = 'action' value="狼人自爆"/>
+        </form>
 {% endblock %}
 {% block js %}
 <script>
