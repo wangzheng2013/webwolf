@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.template.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
 from werewolf import *
-from models import GameInfo, Game2User, SystemCommand, userVote
+from models import GameInfo, Game2User, SystemCommand, userVote, Chat
 
 @csrf_exempt
 def get_system_command(request):
@@ -25,8 +25,9 @@ def game_api(request):
         seat = int(seat)
     gameId = 1
     visitor = False
-    if len(Game2User.objects.filter(gameId = gameId, seat = seat, user = user)) == 0:
+    if Game2User.objects.filter(gameId = gameId, seat = seat, user = request.user).count() == 0:
         visitor = True
+
     # 正式开始
     gameInfo = GameInfo.objects.filter(gameId = gameId)
     if len(gameInfo) == 0:
@@ -40,7 +41,12 @@ def game_api(request):
     for user in userList:
         user.character_name = str(werewolf_character(int(game.character[user.seat].character)).character)
         user.alive = game.character[user.seat].alive
+        if visitor:
+            if user.user == request.user:
+                visitor = False
+                seat = user.seat
     chats = SystemCommand.objects.filter(gameId = gameId)
+    mchats = Chat.objects.filter(gameId = gameId)
     wolf_move = False
     witch_move = False
     seer_move = False

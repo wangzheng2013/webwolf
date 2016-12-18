@@ -52,7 +52,10 @@ def chat(request):
 @csrf_exempt
 def get_chat(request):
     if request.method == 'POST':
-        last_chat_id = int(request.POST.get('last_chat_id'))
+        try:
+            last_chat_id = int(request.POST.get('last_chat_id'))
+        except:
+            last_chat_id = 0
         chats = Chat.objects.filter(id__gt = last_chat_id)
         return render(request, 'chat_list_item.html', {'chats': chats})
     else:

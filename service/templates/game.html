@@ -4,21 +4,24 @@
     <meta charset="UTF-8">
     <title>Game start!</title>
     <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+    <script src="https://cdn.pubnub.com/pubnub-3.7.14.min.js"></script>
+    <script src="https://cdn.pubnub.com/webrtc/webrtc.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
     <link type = "text/css" href = "/static/css/bootstrap.min.css" rel = "stylesheet">
     <style>
-        html,body{height: 100%;}
+        html{height: 100%;}
+        body{height: 100%;background-color: #cccccc;font-family: 微软雅黑}
         #Game-info{position:relative;float:left;width:25%;height:100%;}
-        #Game-info-1{height: 30%;overflow: auto;padding:10px}
-        #Game-info-2{height: 25%;overflow: auto;padding-left: 10px}
-        #Game-info-3{height: 25%;overflow: auto;padding-left: 10px;}
-        #Game-info-4{height: 20%;overflow: auto;padding-left: 10px;}
-        #Main{position:relative;float:left;width: 50%;height: 100%}
-        #Rule{height: 15%;padding-top: 10px;}
-        #Self-info{position:relative;float:left;width: 25%;height: 100%}
-        #Self-info-1{height: 40%;overflow: auto}
+        #Game-info-1{height: 30%;overflow: auto;padding:5px}
+        #Game-info-2{height: 25%;overflow: auto;padding-left: 5px}
+        #Game-info-3{height: 25%;overflow: auto;padding-left: 5px;}
+        #Game-info-4{height: 20%;overflow: auto;padding-left: 5px;}
+        #Main{position:relative;float:left;width: 45%;height: 100%}
+        #Rule{height: 15%;padding-top: 5px;}
+        #Self-info{position:relative;float:left;width: 25%;height: 100%;padding:5px;}
+        #Self-info-1{height: 30%;overflow: auto;}
         #chat-info{overflow: auto;}
-        #Self-info-2{height: 20%;overflow: auto;}
+        #Self-info-2{height: 40%;overflow: auto;padding-top: 5px}
         #Id-1{position: relative;float: left;width: 50%;}
         #Id-2{position: relative;float: left;width: 50%;}
         .timer{font-size: 30px;}
@@ -88,136 +91,19 @@
             <div id="User-action">
             </div>
         </form>
-    {% for user in userList%}
-    <p>{{user.seat}} : {{ user.user.username }} ({{user.character_name}})({{ user.alive }})</p>
-    {% endfor %}
-            <form action="/post_game/" method="post">
-    {% csrf_token %}
-    <input type = 'submit' name = 'action' value="创建游戏"/>
-    <input type = 'submit' name = 'action' value="白天"/>
-    <input type = 'submit' name = 'action' value="黑夜"/>
-    </form>
-    {% if wolf_move %}
-    <form action="/post_game/" method="post">
-        {% csrf_token %}
-        <input type = 'number' name = 'target'/>
-        <input type = 'submit' name = 'action' value="狼刀"/>
-        <input type = 'submit' name = 'action' value="空刀"/>
-    </form>
-    {% endif %}
-    {% if speak_move %}
-    <form action="/post_game/" method="post">
-        {% csrf_token %}
-        <input type = 'submit' name = 'action' value="过"/>
-        </form>
-    {% endif %}
-    {% if police_choose_move %}
-    <form action="/post_game/" method="post">
-        {% csrf_token %}
-        <input type = 'submit' name = 'action' value="警左"/>
-        <input type = 'submit' name = 'action' value="警右"/>
-        </form>
-    {% endif %}
-    {% if police_move %}
-    <form action="/post_game/" method="post">
-        {% csrf_token %}
-            <input type = 'submit' name = 'action' value="随机上警"/>
-        </form>
-    {% for voter in voters %}
-    <form action="/post_game/" method="post">
-        {% csrf_token %}
-            {{ voter }} :
-            <input type = 'number' name = 'voter' value={{voter}} hidden/>
-            <input type = 'submit' name = 'action' value="上警"/>
-            <input type = 'submit' name = 'action' value="不上警"/>
-        </form>
-    {% endfor %}
-    {% endif %}
-    {% if vote_move %}
-    <form action="/post_game/" method="post">
-        {% csrf_token %}
-            <input type = 'submit' name = 'action' value="随机投票"/>
-        </form>
-    {% for voter in voters %}
-    <form action="/post_game/" method="post">
-        {% csrf_token %}
-            {{ voter }} : <input type = 'number' name = 'target'/>
-            <input type = 'number' name = 'voter' value={{voter}} hidden/>
-            <input type = 'submit' name = 'action' value="投票"/>
-        </form>
-    {% endfor %}
-    {% endif %}
-    {% if police_vote_move %}
-    <form action="/post_game/" method="post">
-        {% csrf_token %}
-            <input type = 'submit' name = 'action' value="随机警上投票"/>
-        </form>
-    {% for voter in voters %}
-    <form action="/post_game/" method="post">
-        {% csrf_token %}
-            {{ voter }} : <input type = 'number' name = 'target'/>
-            <input type = 'number' name = 'voter' value={{voter}} hidden/>
-            <input type = 'submit' name = 'action' value="警上投票"/>
-        </form>
-    {% endfor %}
-    {% endif %}
-    {% if seer_move %}
-    <form action="/post_game/" method="post">
-        {% csrf_token %}
-        <input type = 'number' name = 'target'/>
-        <input type = 'submit' name = 'action' value="预言家"/>
-        </form>
-    {% endif %}
-    {% if witch_move %}
-    <form action="/post_game/" method="post">
-        {% csrf_token %}
-        {% if witchA %}
-        <p>昨天晚上{{victim}}号玩家死亡————</p>
-        <input type = 'submit' name = 'action' value="女巫救"/>
-        {% endif %}
-        {% if witchP %}
-        <input type = 'number' name = 'target'/>
-        <input type = 'submit' name = 'action' value="女巫毒"/>
-        {% endif %}
-        <input type = 'submit' name = 'action' value="女巫过"/>
-        </form>
-    {% endif %}
-        {{seat}}
-        {% if hunterGun %}
-        <form action="/post_game/" method="post">
-        {% csrf_token %}
-        <input type = 'number' name = 'target'/>
-        <input type = 'submit' name = 'action' value="猎人开枪"/>
-        </form>
-        {% endif %}
-<form action="/post_game/" method="post">
-        {% csrf_token %}
-        <input type = 'number' name = 'target' value="{{seat}}" hidden/>
-        <input type = 'submit' name = 'action' value="狼人自爆"/>
-        </form>
-    <div id="chatroom">
-        <div class = "list-group-item">
-            {% for chat in chats %}
-            <h4 class="list-group-item-heading">{{chat.sender}}:{{chat.content}}</h4>
-            <p class="list-group-item-text">{{chat.time|date:"Y-m-d H:i:s"}}</p>
-            <input type="hidden" class="chat_id" value="{{chat.id}}"/>
-            <br>
-            {% endfor %}
-            </div>
-    </div>
-        </form>
     </div>
     <div id="Self-info">
         <div id="Self-info-1">
             <div id="chat-info">
                 <div class = "list-group-item">
-                {% for chat in chats %}
+                {% for chat in mchats %}
                 <h4 class="list-group-item-heading">{{chat.sender}}:{{chat.content}}</h4>
                 <p class="list-group-item-text">{{chat.time}}</p>
                 <input type="hidden" class="chat_id" value="{{chat.id}}"/>
                 <br>
                 {% endfor %}
             </div>
+
             <form method="post" action="/post_chat/">
                 {% csrf_token %}
                 <textarea id="chat-input" class="form-control" name = 'chat_content'></textarea>
@@ -226,7 +112,9 @@
         </div>
         </div>
         <div id="Self-info-2">
-            <p>狼人战术区（情侣区暂时不留位置了）</p>
+            <div id="video"></div>
+            <button type="button" class="btn btn-default" id="btn-dadianhua">打电话</button>
+            <button type="button" class="btn btn-default" id="btn-guadianhua">挂电话</button>
         </div>
         <div id="Self-info-3">
             <div id="Id-1"><p id="Id-identity"></p><p id="Id-seat"></p></div>
@@ -235,6 +123,14 @@
                 <span id="Skill-2"></span>
             </div>
         </div>
+    </div>
+    <div id = "sys" hidden>
+        {% for chat in chats %}
+            <h4 class="list-group-item-heading">{{chat.sender}}:{{chat.content}}</h4>
+            <p class="list-group-item-text">{{chat.time}}</p>
+            <input type="hidden" class="sys_id" value="{{chat.id}}"/>
+            <br>
+        {% endfor %}
     </div>
 </body>
 <script type="text/javascript">
@@ -333,6 +229,8 @@
         $('#User-action').append("<input type = 'number' id='input-number' name = 'target'value='0'/>");
         $('#User-action').append("<input type = 'submit' id='btn-kill' name = 'action' value='狼刀'/>");
         $('#User-action').append("<input type = 'submit' id='btn-kong' name = 'action' value='空刀'/>");
+        $('#User-action').append("<input type = 'number' name = 'target' value='{{seat}}' hidden/>");
+        $('#User-action').append("<input type = 'submit' name = 'action' value='狼人自爆'/>");
         {% endif %}
     }
     else if(myself.identity == 'SEER')
@@ -365,6 +263,10 @@
     {
         $('#Id-1').append("<img src='/static/images/hunter.jpg' width='120px' height='120px'>");
         $('#Skill-1').append('猎枪：若你死亡，在白天，可以开枪杀死一名玩家，被毒无法开枪');
+        {% if hunterGun %}
+        $('#User-action').append("<input type = 'number' name = 'target' value='0' />");
+        $('#User-action').append("<input type = 'submit' name = 'action' value='猎人开枪'/>");
+        {% endif %}
     }
     else if(myself.identity == 'IDIOT')
     {
@@ -397,7 +299,7 @@
     }
 
 
-
+    $('#piao-0').append("放逐投票:<br>");
     for(i=0;i<GamePlayerNumber;i++)
     {
         var isvote = 0;
@@ -412,22 +314,17 @@
             $('#piao-0').append("投票给"+i+'<br>');
 
     }
-    $('#piao-100').append("警上投票:<br>");
-    for(i=0;i<GamePlayerNumber;i++)
-    {
-        isvote = 0;
+    $('#piao-100').append("是否警上:<br>");
 
-        {% for vote in votes100 %}
-        if({{vote.vote}} == i){
-            $('#piao-100').append(" "+{{vote.seat}});
-            isvote = 1;
-        }
-         {% endfor %}
-        if(isvote)
-            $('#piao-100').append("投票给"+i+'<br>');
 
+    {% for vote in votes100 %}
+    if({{vote.vote}} == 1){
+        $('#piao-100').append(" "+{{vote.seat}});
     }
-    $('#piao-100').append("放逐投票:<br>");
+    {% endfor %}
+    $('#piao-100').append("上警了"+'<br>');
+
+    $('#piao-100').append("警上投票:<br>");
     for(i=0;i<GamePlayerNumber;i++)
     {
         isvote = 0;
@@ -554,6 +451,8 @@
         e.preventDefault();
     };
 
+
+
     /*document.getElementById("btn-kill").onclick = function(e){
         clickType = 2;
     };
@@ -578,17 +477,45 @@
 
     function updateMsg(){
     $.post(
-        "/get_syscommand/",
+        "/get_chat/",
         {
             last_chat_id: $(".chat_id").last().val()
         },
         function(data){
-            $('.list-group-item').append(data);
+           $('.list-group-item').append(data);
         }
     );
         setTimeout("updateMsg()", 3000);
     }
     updateMsg();
+    function updateMsg1(){
+    $.post(
+        "/get_syscommand/",
+        {
+            last_chat_id: $(".sys_id").last().val()
+        },
+        function(data){
+            $('#sys').append(data);
+            /*var flag = true;
+            var w = 'PoliceSpeak';
+            for (var i = 0;i < data.length - w.length;i++){
+                flag = true;
+                for (var j = 0;j < w.length;j++)
+                    if (data[i + j] != w[j]){
+                        flag = false;
+                        break;
+                    }
+                if (flag){
+                    break;
+                }
+            }*/
+            //if (($('#sys').text().length > 0) && (!flag))
+             //   location.reload();
+        }
+    );
+        setTimeout("updateMsg1()", 3000);
+    }
+    updateMsg1();
 
     function timer()
     {
@@ -626,11 +553,61 @@
                     document.getElementById("btn-jingzuo").click();
             {% endif %}
             second = 60;
+            //location.reload();
 
         }
         $('#time').text(second);
         second--;
     }
     setInterval(function(){timer()},1000);
+
+    var video_out = $('#video');
+    var all_recv_numbers = [];
+    var receive_phone = null;
+    var phone = null;
+    for(i=0;i<GamePlayerNumber;i++)
+    {
+        if(myseat != i)
+             all_recv_numbers.push(i+"");
+    }
+
+phone = window.phone = PHONE({
+    number : myseat+"0",
+    publish_key : 'pub-c-21c68b88-fefa-44f2-8135-46866c64aef0',
+    subscribe_key : 'sub-c-72428bf6-c507-11e6-b82b-0619f8945a4f',
+});
+
+phone.ready(function () {
+    receive_phone = window.receive_phone = PHONE({
+        number: myseat+"" ,
+        publish_key : 'pub-c-21c68b88-fefa-44f2-8135-46866c64aef0',
+        subscribe_key : 'sub-c-72428bf6-c507-11e6-b82b-0619f8945a4f',
+        media : { audio : 'true', video : false },
+    });
+    receive_phone.receive(function(session) {
+        session.connected(function (session) {video_out.append(session.video);});
+        session.ended(function (session) {video_out.innerHTML = "";});
+    });
+});
+    document.getElementById("btn-dadianhua").onclick = makeCall;
+    document.getElementById("btn-guadianhua").onclick = hangup;
+
+    function makeCall() {
+    if (phone == null) {
+        alert("no phone!");
+    }
+    else {
+        // show self video
+        video_out.append(phone.video);
+        // dial all other users' recv_phones
+        for (var i = 0; i < all_recv_numbers.length; ++i) {
+            phone.dial(all_recv_numbers[i]);
+        }
+    }
+}
+    function hangup() {
+    phone.hangup();
+}
+
 </script>
 </html>
