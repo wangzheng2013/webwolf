@@ -62,9 +62,11 @@
         <div id="Game-info-3">
             <p>获得信息：</p>
             <p>{{deathLastNight}}号玩家已经死亡</p>
-            <p id="jingshang"></p>
-            <p id="baitian"></p>
-
+            <span id="piao-0"></span>
+            <span id="piao-100"></span>
+            <span id="piao-101"></span>
+            <p id="yourdeath"></p>
+            <p id="gameover"></p>
         </div>
         <div id="Game-info-4">
             <span class="timer">倒计时：</span><span id="time" class="timer"></span><span class="timer">秒</span>
@@ -257,6 +259,7 @@
     var myself = new Player();
     myself.name = "{{username}}";
     var myseat = -1;
+    var isdeath = false;
     console.log(myself.name);
 
     //创建游戏玩家
@@ -293,6 +296,17 @@
     }
     $('#Id-identity').append("你的身份是："+myself.identity);
     $('#Id-seat').append("你的座位是："+myseat);
+
+    //alive
+    {% for user in userList %}
+    players[{{user.seat}}].alive = "{{user.alive}}";
+    {% endfor %}
+    if(players[myseat].alive == 'False')
+    {
+        isdeath = true;
+        $('#yourdeath').append("你死了");
+    }
+    if(!isdeath){
     if(myself.identity == 'VILLEGER')
     {
         $('#Id-1').append("<img src='/static/images/villager.jpg' width='120px' height='120px'>");
@@ -367,18 +381,63 @@
         $('#User-action').append("<input type = 'submit' name = 'action' id='btn-jingtou'value='警上投票'/>");
     {% endif %}
 
-    //alive
-    {% for user in userList %}
-    players[{{user.seat}}].alive = "{{user.alive}}";
-    console.log(""+players[{{user.seat}}].alive);
-    {% endfor %}
-    /*for(i=0;i<GamePlayerNumber;i++)
-    {
-        {% for vote in votes0 %}
-            <p>{{vote.seat}}投票给{{vote.vote}}号玩家</p>
-    {% endfor %}
-    }*/
+    }
 
+
+
+    for(i=0;i<GamePlayerNumber;i++)
+    {
+        var isvote = 0;
+        {% for vote in votes0 %}
+        if({{vote.vote}} == i)
+        {
+            $('#piao-0').append(" "+{{vote.seat}});
+            isvote = 1;
+        }
+        {% endfor %}
+        if(isvote)
+            $('#piao-0').append("投票给"+i+'<br>');
+
+    }
+    $('#piao-100').append("警上投票:<br>");
+    for(i=0;i<GamePlayerNumber;i++)
+    {
+        isvote = 0;
+
+        {% for vote in votes100 %}
+        if({{vote.vote}} == i){
+            $('#piao-100').append(" "+{{vote.seat}});
+            isvote = 1;
+        }
+         {% endfor %}
+        if(isvote)
+            $('#piao-100').append("投票给"+i+'<br>');
+
+    }
+    $('#piao-100').append("放逐投票:<br>");
+    for(i=0;i<GamePlayerNumber;i++)
+    {
+        isvote = 0;
+        {% for vote in votes101 %}
+        if({{vote.vote}} == i)
+        {
+            $('#piao-101').append(" "+{{vote.seat}})
+            isvote = 1;
+        }
+        {% endfor %}
+        if(isvote)
+            $('#piao-101').append("投票给"+i+'<br>');
+    }
+    if({{gameover}} == 1)
+    {
+        $('#gameover').append('游戏结束， 狼人获胜');
+        $('#Game-info-2-text').append('游戏结束， 狼人获胜');
+    }
+    else if({{gameover}} == 2)
+    {
+        $('#gameover').append('游戏结束， 好人获胜');
+        $('#Game-info-2-text').append('游戏结束， 好人获胜');
+    }
 
     Draw();
     function Draw(){

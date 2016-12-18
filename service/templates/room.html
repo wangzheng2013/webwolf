@@ -22,7 +22,15 @@
             <span class="other-user-name">房间人数：{{ roomnum}}</span>
         </div>
         <div id="chat-body">
-            <div class="user-list"><p class="other-user-name">银色子弹&nbsp&nbsp<span style="color: red">&#10004</span></p></div>
+            <div class="user-list">
+            {% for user in userList%}
+                {% if user == 0 %}
+                <p>无</p>
+                {% else %}
+                <p class="other-user-name">{{user.username}}&nbsp&nbsp<span style="color: red">&#10004</span></p>
+                {% endif %}
+            {% endfor %}
+            </div>
         </div>
         <div id="chat-info">
             <div class = "list-group-item">
@@ -59,28 +67,20 @@
             </select>
             <div id="d-setting">
                 <input class="btn btn-info" type = 'submit' name = 'setting' value="设置" disabled="true"/>
-                <input class="btn btn-info" type = 'submit' name = 'setting' value="准备" />
             </div>
         </form>
         <form action="/post_game/" method="post">
             {% csrf_token %}
             <input class="btn btn-warning" type = 'submit' name = 'action' value="创建游戏"/>
         </form>
+        <form action="/post_room/" method="post">
+            {% csrf_token %}
+            <input type = 'number' name = 'gameId' value={{roomnum}} hidden/>
+            <input type = 'number' name = 'seat' />
+            <input class="btn btn-warning btn-sm" type = 'submit' name = 'action' id="add-game" value="加入游戏"/>
+        </form>
+
     </div>
-    {% for user in userList%}
-        {% if user == 0 %}
-        <p>无</p>
-        {% else %}
-        <p>{{user.username}}</p>
-        {% endif %}
-    {% endfor %}
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-    <form action="/post_room/" method="post">
-        {% csrf_token %}
-        <input type = 'number' name = 'gameId' value={{roomnum}} hidden/>
-        <input type = 'number' name = 'seat'/>
-        <input class="btn btn-warning" type = 'submit' name = 'action' value="加入游戏"/>
-    </form>
 {% endblock %}
 {% block js %}
 <script>
