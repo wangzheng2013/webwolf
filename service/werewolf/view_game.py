@@ -230,6 +230,7 @@ def post_game(request):
         command = request.POST.get('action')
         if command == u'创建游戏':
             # 删除上一局的信息
+            game_flag = True
             game = werewolf_game(str({}))
             seatList = []
             for i in range(game.getNum()):
@@ -243,29 +244,32 @@ def post_game(request):
                     seatList[i]['user'] = Game2User.objects.filter(gameId = gameId, seat = i)[0].user
                 else:
                     seatList[i]['user'] = request.user
-            userVote.objects.filter(gameId = gameId).delete()
+                    game_flag = False
+
             # 新建一个游戏,并且保存到数据库中
-            Game2User.objects.filter(gameId = gameId).delete()
-            for i in range(game.getNum()):
-                user = Game2User()
-                user.gameId = gameId
-                user.character = seatList[i]['character']
-                user.user = seatList[i]['user']
-                user.seat = i
-                user.save()
-            # 在数据库中保存相应的游戏信息
-            GameInfo.objects.filter(gameId = gameId).delete()
-            gameInfo = GameInfo()
-            gameInfo.gameId = gameId
-            gameInfo.content = game.gameInfoEncode()
-            gameInfo.save()
-            SystemCommand.objects.filter(gameId = gameId).delete()
-            syscommand = SystemCommand()
-            syscommand.gameId = gameId
-            tmp = {}
-            tmp['command'] = 'Werewolf'
-            syscommand.content = str(tmp)
-            syscommand.save()
+            if game_flag:
+                userVote.objects.filter(gameId = gameId).delete()
+                Game2User.objects.filter(gameId = gameId).delete()
+                for i in range(game.getNum()):
+                    user = Game2User()
+                    user.gameId = gameId
+                    user.character = seatList[i]['character']
+                    user.user = seatList[i]['user']
+                    user.seat = i
+                    user.save()
+                # 在数据库中保存相应的游戏信息
+                GameInfo.objects.filter(gameId = gameId).delete()
+                gameInfo = GameInfo()
+                gameInfo.gameId = gameId
+                gameInfo.content = game.gameInfoEncode()
+                gameInfo.save()
+                SystemCommand.objects.filter(gameId = gameId).delete()
+                syscommand = SystemCommand()
+                syscommand.gameId = gameId
+                tmp = {}
+                tmp['command'] = 'Werewolf'
+                syscommand.content = str(tmp)
+                syscommand.save()
         else:
             gameInfo = GameInfo.objects.filter(gameId = gameId)[0]
             game = werewolf_game(gameInfo.content)

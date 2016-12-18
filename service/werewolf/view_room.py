@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.template.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
 from models import Chat, Game2User
+from django.contrib.auth.models import User
 
 def room(request):
     username = request.user.username
@@ -19,6 +20,9 @@ def room(request):
         tmp = Game2User.objects.filter(gameId = 1, seat = i)
         if len(tmp) == 1:
             userList[i] = tmp[0].user
+        else:
+            userList[i] = User()
+            userList[i].username = 'NULL'
     return render(request, "room.html", locals())
 
 def chat(request):
