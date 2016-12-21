@@ -36,33 +36,8 @@
             <p>4名普通村民</p>
         </div>
         <div id="Game-info-2">
-            <div class="r1">
             <p>当前信息：</p>
-            {% if wolf_move %}
-                <p class="Game-info-2-text">夜晚，狼人行动，其余玩家请等待</p>
-            {% endif %}
-            {% if witch_move %}
-                <p class="Game-info-2-text">夜晚，女巫行动，其余玩家请等待</p>
-            {% endif %}
-            {% if seer_move %}
-                <p class="Game-info-2-text">夜晚，预言家行动，其余玩家请等待</p>
-            {% endif %}
-            {% if police_move %}
-                <p class="Game-info-2-text">白天，即将开始警长竞选，请选择是否要竞选警长</p>
-            {% endif %}
-            {% if speak_move %}
-                <p class="Game-info-2-text">白天，请{{speaker}}号发言</p>
-            {% endif %}
-            {% if police_vote_move %}
-                <p class="Game-info-2-text">白天，警长投票，请选择心目中的警长</p>
-            {% endif%}
-            {% if police_choose_move %}
-                <p class="Game-info-2-text">白天，{{police}}号当选警长，请选择警左或者警右发言</p>
-            {% endif%}
-            {% if vote_move %}
-                <p class="Game-info-2-text">白天，公投阶段，请选择放逐目标</p>
-            {% endif%}
-                </div>
+            <p id="Game-info-2-text"></p>
         </div>
         <div id="Game-info-3">
             <div class="r2">
@@ -176,7 +151,7 @@
     myself.name = "{{username}}";
     var myseat = -1;
     var isdeath = false;
-    var ws = new WebSocket("ws://59.66.139.41:4000");
+    var ws = new WebSocket("ws://59.66.139.58:4000");
 
     //创建游戏玩家
     for(var i=0;i<GamePlayerNumber;i++)
@@ -213,7 +188,6 @@
             break;
         }
     }
-    function recall(){
     $('#Id-identity').append("你的身份是："+myself.identity);
     $('#Id-seat').append("你的座位是："+myseat);
 
@@ -237,77 +211,27 @@
     {
         $('#Id-1').append("<img src='/static/images/commonwerewolf.jpg' width='120px' height='120px'>");
         $('#Skill-1').append('杀手：每到夜晚，你可以和队友统一意见，杀死一名玩家');
-        {% if wolf_move %}
-        $('#User-action').append("<input type = 'number' id='input-number' name = 'target'value='0'/>");
-        $('#User-action').append("<input type = 'submit' id='btn-kill' name = 'action' value='狼刀'/>");
-        $('#User-action').append("<input type = 'submit' id='btn-kong' name = 'action' value='空刀'/>");
-        $('#User-action').append("<input type = 'number' name = 'target' value='{{seat}}' hidden/>");
-        $('#User-action').append("<input type = 'submit' name = 'action' value='狼人自爆'/>");
-        {% endif %}
     }
     else if(myself.identity == 'SEER')
     {
         $('#Id-1').append("<img src='/static/images/seer.jpg' width='120px' height='120px'>");
         $('#Skill-1').append('预言：夜晚，你可以查看一名玩家的身份');
-        {% if seer_move %}
-            $('#User-action').append("<input type = 'number' name = 'target'value='0'/>");
-            $('#User-action').append("<input type = 'submit' name = 'action' id='btn-seer' value='预言家'/>");
-        {% endif %}
     }
      else if(myself.identity == 'WITCH')
     {
         $('#Id-1').append("<img src='/static/images/witch.jpg' width='120px' height='120px'>");
         $('#Skill-1').append('解药：夜晚，你可以救活一名濒临死亡的玩家');
         $('#Skill-2').append('毒药：夜晚，你可以毒杀一名玩家');
-        {% if witch_move %}
-            {% if witchA %}
-            $('#User-action').append("<p>昨天晚上{{victim}}号玩家死亡</p>");
-            $('#User-action').append("<input type = 'submit' name = 'action' value='女巫救'/>");
-            {% endif %}
-        {% if witchP %}
-            $('#User-action').append("<input type = 'number' name = 'target' value='0'/>");
-            $('#User-action').append("<input type = 'submit' name = 'action' value='女巫毒'/>");
-        {% endif %}
-            $('#User-action').append("<input type = 'submit' name = 'action' id='btn-nwguo'value='女巫过'/>");
-        {% endif %}
     }
     else if(myself.identity == 'HUNTER')
     {
         $('#Id-1').append("<img src='/static/images/hunter.jpg' width='120px' height='120px'>");
         $('#Skill-1').append('猎枪：若你死亡，在白天，可以开枪杀死一名玩家，被毒无法开枪');
-        {% if hunterGun %}
-        $('#User-action').append("<input type = 'number' name = 'target' value='0' />");
-        $('#User-action').append("<input type = 'submit' name = 'action' value='猎人开枪'/>");
-        {% endif %}
     }
     else if(myself.identity == 'IDIOT')
     {
         $('#Id-1').append("<img src='/static/images/idot.jpg' width='120px' height='120px'>");
         $('#Skill-1').append('白痴：若你白天因为被投票公投出局，免受放逐');
-    }
-    {% if police_move %}
-        if(myself.identity == 'SEER')
-            $('#User-action').append("true为是狼人,false为不是狼人,他是{{iswolf}}<br>");
-        $('#User-action').append("<input type = 'number' name = 'voter' value='"+ myseat +"' hidden/>");
-        $('#User-action').append("<input type = 'submit' name = 'action' value='上警'/>");
-        $('#User-action').append("<input type = 'submit' name = 'action' id='btn-bushangjing'value='不上警'/>");
-     {% endif %}
-    {% if speak_move %}
-        if({{speaker}} == myseat)
-            $("#User-action").append("<input type = 'submit' name = 'action' id='btn-guo'value='过'/>");
-    {% endif %}
-    {% if police_choose_move %}
-        if({{police}} == myseat){
-            $("#User-action").append("<input type = 'submit' name = 'action' id='btn-jingzuo' value='警左'/>");
-            $("#User-action").append("<input type = 'submit' name = 'action' value='警右'/>");
-        }
-    {% endif %}
-    {% if police_vote_move %}
-        $("#User-action").append("<input type = 'number' name = 'target' value='0'/>");
-        $('#User-action').append("<input type = 'number' name = 'voter' value='"+ myseat +"' hidden/>");
-        $('#User-action').append("<input type = 'submit' name = 'action' id='btn-jingtou'value='警上投票'/>");
-    {% endif %}
-
     }
 
     $('#piao-0').append("放逐投票:<br>");
@@ -368,10 +292,7 @@
             ws.send(''+$("#win").val());
             $("#win").val("");
         })
-        }
-    }
-    var times = 1;
-    recall();
+        }}
     Draw();
     function Draw(){
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -514,6 +435,7 @@
         function(data){
             $('#sys').append(data);
             $('#User-action').empty();
+            $('#Game-info-2-text').empty();
             if (data.command == 'Werewolf'){
                 //if (myself.identity =='WEREWOLF') {
                     $('#User-action').append("<input type = 'number' id='input-number' name = 'target'value='0'/>");
@@ -521,6 +443,7 @@
                     $('#User-action').append("<input type = 'submit' id='btn-kong' name = 'action' value='空刀'/>");
                     $('#User-action').append("<input type = 'number' name = 'target' value='{{seat}}' hidden/>");
                     $('#User-action').append("<input type = 'submit' name = 'action' value='狼人自爆'/>");
+                    $('#Game-info-2-text').append('夜晚，狼人行动，其余玩家请等待');
                 //}
             }
             if (data.command == 'Witch'){
@@ -534,39 +457,67 @@
                         $('#User-action').append("<input type = 'submit' name = 'action' value='女巫毒'/>");
                     }
                     $('#User-action').append("<input type = 'submit' name = 'action' id='btn-nwguo'value='女巫过'/>");
+                    $('#Game-info-2-text').append('夜晚，女巫行动，其余玩家请等待');
                 //}
             }
             if (data.command == 'Seer'){
                 //if (myself.identity =='WITCH') {
                     $('#User-action').append("<input type = 'number' name = 'target'value='0'/>");
                     $('#User-action').append("<input type = 'submit' name = 'action' id='btn-seer' value='预言家'/>");
+                    $('#Game-info-2-text').append('夜晚，预言家行动，其余玩家请等待');
                 //}
             }
-            /*var flag = true;
-            var w = 'PoliceSpeak';
-            for (var i = 0;i < data.length - w.length;i++){
-                flag = true;
-                for (var j = 0;j < w.length;j++)
-                    if (data[i + j] != w[j]){
-                        flag = false;
-                        break;
-                    }
-                if (flag){
-                    break;
-                }
+            /*if (data.command == 'Hunter'){
+                //if (myself.identity =='HUNTER') {
+                    {% if hunterGun %}
+                        $('#User-action').append("<input type = 'number' name = 'target' value='0' />");
+                        $('#User-action').append("<input type = 'submit' name = 'action' value='猎人开枪'/>");
+                    {% endif %}
+                //}
             }*/
-            //if (($('#sys').text().length > 0) && (!flag))
-             //   location.reload();
+            if (data.command == 'Police'){
+                if(myself.identity == 'SEER')
+                    $('#User-action').append("true为是狼人,false为不是狼人,他是{{iswolf}}<br>");
+                $('#User-action').append("<input type = 'number' name = 'voter' value='"+ myseat +"' hidden/>");
+                $('#User-action').append("<input type = 'submit' name = 'action' value='上警'/>");
+                $('#User-action').append("<input type = 'submit' name = 'action' id='btn-bushangjing'value='不上警'/>");
+                $('#Game-info-2-text').append('白天，即将开始警长竞选，请选择是否要竞选警长');
+            }
+            if (data.command == 'PoliceSpeak' || data.command == 'Speak'){
+                 //if({{speaker}} == myseat)
+                    $("#User-action").append("<input type = 'submit' name = 'action' id='btn-guo'value='过'/>");
+                $('#Game-info-2-text').append('白天，请{{speaker}}号发言');
+            }
+             if (data.command == 'PoliceVote'){
+                 $("#User-action").append("<input type = 'number' name = 'target' value='0'/>");
+                 $('#User-action').append("<input type = 'number' name = 'voter' value='"+ myseat +"' hidden/>");
+                $('#User-action').append("<input type = 'submit' name = 'action' id='btn-jingtou'value='警上投票'/>");
+                $('#Game-info-2-text').append('白天，警长投票，请选择心目中的警长');
+            }
+             if (data.command == 'Day'){
+                if({{police}} == myseat)
+                 {
+                     $("#User-action").append("<input type = 'submit' name = 'action' id='btn-jingzuo' value='警左'/>");
+                     $("#User-action").append("<input type = 'submit' name = 'action' value='警右'/>");
+                 }
+                  $('#Game-info-2-text').append('白天，{{police}}号当选警长，请选择警左或者警右发言');
+            }
+            if (data.command == 'Vote'){
+                $("#User-action").append("<input type = 'number' name = 'target' value='0'/>");
+                $('#User-action').append("<input type = 'number' name = 'voter' value='"+ myseat +"' hidden/>");
+                $('#User-action').append("<input type = 'submit' name = 'action' id='btn-toupiao'value='投票'/>");
+                $('#Game-info-2-text').append('白天，公投阶段，请选择放逐目标');
+            }
         }
-    );
+        );
         setTimeout("updateMsg1()", 5000);
     }
     updateMsg1();
 
-    /*function timer()
+    function timer()
     {
         if(second == 0){
-            if(myself.identity == 'WEREWOLF')
+            /*if(myself.identity == 'WEREWOLF')
             {
                 {% if wolf_move %}
                 document.getElementById('btn-kong').click();
@@ -597,32 +548,13 @@
             {% if police_choose_move %}
                 if({{police}} == myseat)
                     document.getElementById("btn-jingzuo").click();
-            {% endif %}
+            {% endif %}*/
             second = 60;
-            //location.reload();
-
         }
         $('#time').text(second);
         second--;
     }
     setInterval(function(){timer()},1000);
-    function refresh(){
-        $('.r1').load(location.href + " .r1",function(){
-            $('.r2').load(location.href + " .r2",function(){
-                     $('.r5').load(location.href + " .r5",function(){
-                          $('.r6').load(location.href + " .r6",function(){
-                               $('.r3').load(location.href + " .r3",function(){
-                                   if(times == 1 || times % 32 == 2)
-                                   {
-                                       recall();
-                                   }
-                                   console.log(""+times);times++
-                               });
-                          });
-                    });
-            })
-        });
-    }*/
 
 
     var video_out = $('#video');
