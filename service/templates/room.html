@@ -73,7 +73,7 @@
             {% csrf_token %}
             <input class="btn btn-warning" type = 'submit' name = 'action' value="创建游戏"/>
         </form>
-        <form action="/post_room/" method="post">
+        <form action="/room/" method="post">
             {% csrf_token %}
             <input type = 'number' name = 'gameId' value={{roomnum}} hidden/>
             <input class="btn btn-warning btn-sm" type = 'submit' name = 'action' id="add-game" value="加入游戏"/>
@@ -83,21 +83,24 @@
 {% endblock %}
 {% block js %}
 <script>
+    var flag = true;
     function updateMsg(){
-    $.post(
-        "/get_chat/",
-        {
-            last_chat_id: $(".chat_id").last().val()
-        },
-        function(data){
-            $('.list-group-item').append(data);
-            $('#chat-info').scrollTop($('#chat-info')[0].scrollHeight);
-        }
-    );
-    setTimeout("updateMsg()", 5000);
+        $.post(
+            "/get_chat/",
+            {
+                last_chat_id: $(".chat_id").last().val()
+            },
+            function(data){
+                $('.list-group-item').append(data);
+                if (flag){
+                    $('#chat-info').scrollTop($('#chat-info')[0].scrollHeight);
+                }
+                flag = false;
+            }
+        );
+        setTimeout("updateMsg()", 5000);
     }
     updateMsg();
-    $('#chat-info').scrollTop($('#chat-info')[0].scrollHeight);
     function enter(){
         window.location.href="/game";
     }

@@ -7,17 +7,32 @@ from models import Chat, Game2User
 from django.contrib.auth.models import User
 
 def room(request):
-    username = request.user.username
-    roomnum = request.GET.get('roomnum')
-    if roomnum is None:
-        roomnum = 1
-    chats = []
-    num = 12
-    userList = []
-    tmp = Game2User.objects.filter(gameId = 1).all()
-    for w in tmp:
-        userList.append(w.user)
-    return render(request, "room.html", locals())
+    if request.method == 'POST':
+        response = request.META.get('HTTP_REFERER', '/')
+        gameId = request.POST.get('gameId')
+        user = request.user
+        Game2User.objects.filter(gameId = gameId, user = user).delete()
+        if Game2User.objects.filter(gameId = gameId).count() < 12:
+            tmp = Game2User()
+            tmp.character = 0
+            tmp.gameId = gameId
+            tmp.seat = -1
+            tmp.user = user
+            tmp.save()
+        return HttpResponse()
+        #return HttpResponseRedirect(response)
+    else:
+        username = request.user.username
+        roomnum = request.GET.get('roomnum')
+        if roomnum is None:
+            roomnum = 1
+        chats = []
+        num = 12
+        userList = []
+        tmp = Game2User.objects.filter(gameId = 1).all()
+        for w in tmp:
+            userList.append(w.user)
+        return render(request, "room.html", locals())
 
 def post_room(request):
     if request.method == 'POST':
@@ -32,7 +47,8 @@ def post_room(request):
             tmp.seat = -1
             tmp.user = user
             tmp.save()
-        return HttpResponseRedirect(response)
+        return HttpResponse()
+        #return HttpResponseRedirect(response)
     else:
         raise Http404
 

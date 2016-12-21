@@ -6,15 +6,21 @@ from django.views.decorators.csrf import csrf_exempt
 from werewolf import *
 from models import GameInfo, Game2User, SystemCommand, userVote, Chat
 from django.contrib.auth.decorators import login_required
+import json
 
 @csrf_exempt
 def get_system_command(request):
-    if request.method == 'POST':
-        last_chat_id = int(request.POST.get('last_chat_id'))
-        chats = SystemCommand.objects.filter(id__gt = last_chat_id)
-        return render(request, 'chat_list_item.html', {'chats': chats})
+    if True:#request.method == 'POST':
+        chats = SystemCommand.objects.filter(gameId = 1)
+        if chats.count() > 0:
+            tmp = eval(chats[0].content)
+            return HttpResponse(json.dumps(tmp), content_type="application/json")
+        return HttpResponse()
     else:
         raise Http404
+
+def makeSystemJSONView_s(response_data):
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 def game_api(request):
     if not request.user.is_authenticated():
@@ -28,13 +34,15 @@ def game_api(request):
         seat = int(seat)
     gameId = 1
     visitor = False
-    if Game2User.objects.filter(gameId = gameId, seat = seat, user = request.user).count() == 0:
+    if Game2User.objects.filter(gameId = gameId, user = request.user).count() == 0:
         visitor = True
+        return HttpResponseRedirect('/room/')
 
     # 正式开始
     gameInfo = GameInfo.objects.filter(gameId = gameId)
     if len(gameInfo) == 0:
-        content = '{}'
+        #content = '{}'
+        return HttpResponse('游戏尚未开始 <a href="/room/">返回房间，等待开始</a>')
     else:
         content = gameInfo[0].content
     game = werewolf_game(content)
@@ -254,8 +262,8 @@ def post_game(request):
             game = werewolf_game(str({}))
             userList = []
             tmp = Game2User.objects.filter(gameId = gameId)
-            if tmp.count() < 12:
-                game_flag = False
+            #if tmp.count() < 12:
+            #    game_flag = False
             i = 0
             for i in range(tmp.count()):
                 if i < 12:
@@ -272,13 +280,13 @@ def post_game(request):
                 seatList[i]['character'] = int(character)
                 tmp = Game2User.objects.filter(gameId = gameId, seat = i)
                 if len(tmp) == 1:
-                    seatList[i]['user'] = Game2User.objects.filter(gameId = gameId, seat = i)[0].user
+                    seatList[i]['user'] = tmp[0].user
                 else:
                     seatList[i]['user'] = request.user
                     game_flag = False
 
             # 新建一个游戏,并且保存到数据库中
-            if game_flag:
+            if True:
                 userVote.objects.filter(gameId = gameId).delete()
                 Game2User.objects.filter(gameId = gameId).delete()
                 for i in range(game.getNum()):
@@ -355,6 +363,8 @@ def post_game(request):
                 syscommand.gameId = gameId
                 tmp = {}
                 tmp['command'] = 'Witch'
+                tmp['WitchA'] = game.getWitchA()
+                tmp['WitchP'] = game.getWitchP()
                 syscommand.content = str(tmp)
                 syscommand.save()
             if command == u'女巫救':

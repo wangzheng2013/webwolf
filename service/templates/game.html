@@ -135,20 +135,11 @@
                 </div>
         </div>
     </div>
-    <div id = "sys" hidden>
-        {% for chat in chats %}
-            <h4 class="list-group-item-heading">{{chat.sender}}:{{chat.content}}</h4>
-            <p class="list-group-item-text">{{chat.time}}</p>
-            <input type="hidden" class="sys_id" value="{{chat.id}}"/>
-            <br>
-        {% endfor %}
+    <div id = "sys">
     </div>
 </body>
 <div class="r3">
 <script type="text/javascript">
-    window.onload = function(){
-        setInterval(function(){refresh()},5000);
-    }
     function Circle(x, y, radius) {
         this.x = x;
         this.y = y;
@@ -497,18 +488,21 @@
         e.preventDefault();
     };
 
+    var flag = true;
     function updateMsg(){
-    $.post(
-        "/get_chat/",
-        {
-            last_chat_id: $(".chat_id").last().val()
-        },
-        function(data){
-           $('.list-group-item').append(data);
-            $('#chat-info').scrollTop($('#chat-info')[0].scrollHeight);
-            $('#Self-info-1').scrollTop($('#Self-info-1')[0].scrollHeight);
-        }
-    );
+        $.post(
+            "/get_chat/",
+            {
+                last_chat_id: $(".chat_id").last().val()
+            },
+            function(data){
+                $('.list-group-item').append(data);
+                if (flag){
+                    $('#chat-info').scrollTop($('#chat-info')[0].scrollHeight);
+                }
+                flag = false;
+            }
+        );
         setTimeout("updateMsg()", 5000);
     }
     updateMsg();
@@ -516,10 +510,38 @@
     $.post(
         "/get_syscommand/",
         {
-            last_chat_id: $(".sys_id").last().val()
         },
         function(data){
             $('#sys').append(data);
+            $('#User-action').empty();
+            if (data.command == 'Werewolf'){
+                //if (myself.identity =='WEREWOLF') {
+                    $('#User-action').append("<input type = 'number' id='input-number' name = 'target'value='0'/>");
+                    $('#User-action').append("<input type = 'submit' id='btn-kill' name = 'action' value='狼刀'/>");
+                    $('#User-action').append("<input type = 'submit' id='btn-kong' name = 'action' value='空刀'/>");
+                    $('#User-action').append("<input type = 'number' name = 'target' value='{{seat}}' hidden/>");
+                    $('#User-action').append("<input type = 'submit' name = 'action' value='狼人自爆'/>");
+                //}
+            }
+            if (data.command == 'Witch'){
+                //if (myself.identity =='WITCH') {
+                    if (data.WitchA) {
+                        $('#User-action').append("<p>昨天晚上{{victim}}号玩家死亡</p>");
+                        $('#User-action').append("<input type = 'submit' name = 'action' value='女巫救'/>");
+                    }
+                    if (data.WitchP) {
+                        $('#User-action').append("<input type = 'number' name = 'target' value='0'/>");
+                        $('#User-action').append("<input type = 'submit' name = 'action' value='女巫毒'/>");
+                    }
+                    $('#User-action').append("<input type = 'submit' name = 'action' id='btn-nwguo'value='女巫过'/>");
+                //}
+            }
+            if (data.command == 'Seer'){
+                //if (myself.identity =='WITCH') {
+                    $('#User-action').append("<input type = 'number' name = 'target'value='0'/>");
+                    $('#User-action').append("<input type = 'submit' name = 'action' id='btn-seer' value='预言家'/>");
+                //}
+            }
             /*var flag = true;
             var w = 'PoliceSpeak';
             for (var i = 0;i < data.length - w.length;i++){
@@ -541,7 +563,7 @@
     }
     updateMsg1();
 
-    function timer()
+    /*function timer()
     {
         if(second == 0){
             if(myself.identity == 'WEREWOLF')
@@ -600,7 +622,7 @@
                     });
             })
         });
-    }
+    }*/
 
 
     var video_out = $('#video');
