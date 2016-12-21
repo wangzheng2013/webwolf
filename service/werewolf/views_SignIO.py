@@ -5,6 +5,7 @@ from django.template.context_processors import csrf
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib import auth
+from django.contrib.auth import authenticate, login
 
 
 class userInfoForm(forms.Form):
@@ -30,7 +31,10 @@ def signup(request):
             user.set_password(password)
             user.email = ''
             user.save()
-        return HttpResponseRedirect('/signup/?states='+states+'&username=' + username)
+            user = auth.authenticate(username=username, password=password)
+            if user is not None and user.is_active:
+                auth.login(request, user)
+        return HttpResponseRedirect('/room/')
     if request.method == 'GET':
         states = request.GET.get('states')
         message = r'欢迎注册'.decode('utf-8')

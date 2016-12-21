@@ -11,35 +11,27 @@ def room(request):
     roomnum = request.GET.get('roomnum')
     if roomnum is None:
         roomnum = 1
-    chats = Chat.objects.filter(id__gt = 0)
+    chats = []
     num = 12
     userList = []
-    for i in range(num):
-        userList.append(0)
-    for i in range(num):
-        tmp = Game2User.objects.filter(gameId = 1, seat = i)
-        if len(tmp) == 1:
-            userList[i] = tmp[0].user
-        else:
-            userList[i] = User()
-            userList[i].username = 'NULL'
+    tmp = Game2User.objects.filter(gameId = 1).all()
+    for w in tmp:
+        userList.append(w.user)
     return render(request, "room.html", locals())
 
 def post_room(request):
     if request.method == 'POST':
         response = request.META.get('HTTP_REFERER', '/')
-        seat = request.POST.get('seat')
-        if seat is None:
-            seat = 0
         gameId = request.POST.get('gameId')
         user = request.user
         Game2User.objects.filter(gameId = gameId, user = user).delete()
-        tmp = Game2User()
-        tmp.character = 0
-        tmp.gameId = gameId
-        tmp.seat = seat
-        tmp.user = user
-        tmp.save()
+        if Game2User.objects.filter(gameId = gameId).count() < 12:
+            tmp = Game2User()
+            tmp.character = 0
+            tmp.gameId = gameId
+            tmp.seat = -1
+            tmp.user = user
+            tmp.save()
         return HttpResponseRedirect(response)
     else:
         raise Http404

@@ -76,15 +76,14 @@
         <form action="/post_room/" method="post">
             {% csrf_token %}
             <input type = 'number' name = 'gameId' value={{roomnum}} hidden/>
-            <input type = 'number' name = 'seat' />
             <input class="btn btn-warning btn-sm" type = 'submit' name = 'action' id="add-game" value="加入游戏"/>
         </form>
-
+        <input class="btn btn-warning btn-sm" onclick="enter()" name = 'action' value="进入页面"/>
     </div>
 {% endblock %}
 {% block js %}
 <script>
-function updateMsg(){
+    function updateMsg(){
     $.post(
         "/get_chat/",
         {
@@ -92,10 +91,15 @@ function updateMsg(){
         },
         function(data){
             $('.list-group-item').append(data);
+            $('#chat-info').scrollTop($('#chat-info')[0].scrollHeight);
         }
     );
-    setTimeout("updateMsg()", 3000);
-}
+    setTimeout("updateMsg()", 5000);
+    }
     updateMsg();
+    $('#chat-info').scrollTop($('#chat-info')[0].scrollHeight);
+    function enter(){
+        window.location.href="/game";
+    }
 </script>
 {% endblock %}

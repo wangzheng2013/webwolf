@@ -5,6 +5,7 @@ from django.template.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
 from werewolf import *
 from models import GameInfo, Game2User, SystemCommand, userVote, Chat
+from django.contrib.auth.decorators import login_required
 
 @csrf_exempt
 def get_system_command(request):
@@ -16,6 +17,8 @@ def get_system_command(request):
         raise Http404
 
 def game_api(request):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect('/signup/')
     # 检查参数，正确则继续，错误则重定向到正确的参数
     username = request.user.username
     seat = request.GET.get('seat')
@@ -249,6 +252,17 @@ def post_game(request):
             # 删除上一局的信息
             game_flag = True
             game = werewolf_game(str({}))
+            userList = []
+            tmp = Game2User.objects.filter(gameId = gameId)
+            if tmp.count() < 12:
+                game_flag = False
+            i = 0
+            for i in range(tmp.count()):
+                if i < 12:
+                    Game2User.objects.filter(gameId = gameId, user = tmp[i].user).update(seat = i)
+                else:
+                    Game2User.objects.filter(gameId = gameId, user = tmp[i].user).update(seat = -1)
+                i = i + 1
             seatList = []
             for i in range(game.getNum()):
                 seatList.append({})

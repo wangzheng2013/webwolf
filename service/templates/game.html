@@ -10,18 +10,18 @@
     <link type = "text/css" href = "/static/css/bootstrap.min.css" rel = "stylesheet">
     <style>
         html{height: 100%;}
-        body{height: 100%;background-color: #cccccc;font-family: 微软雅黑}
+        body{height: 100%;background-color: #D2E9FF;font-family: 微软雅黑}
         #Game-info{position:relative;float:left;width:25%;height:100%;}
         #Game-info-1{height: 30%;overflow: auto;padding:5px}
-        #Game-info-2{height: 25%;overflow: auto;padding-left: 5px}
-        #Game-info-3{height: 25%;overflow: auto;padding-left: 5px;}
-        #Game-info-4{height: 20%;overflow: auto;padding-left: 5px;}
+        #Game-info-2{height: 25%;overflow: auto;padding-left: 5px;border-top:1px solid #000}
+        #Game-info-3{height: 25%;overflow: auto;padding-left: 5px;border-top:1px solid #000}
+        #Game-info-4{height: 20%;overflow: auto;padding-left: 5px;border-top:1px solid #000}
         #Main{position:relative;float:left;width: 45%;height: 100%}
         #Rule{height: 15%;padding-top: 5px;}
         #Self-info{position:relative;float:left;width: 25%;height: 100%;padding:5px;}
-        #Self-info-1{height: 30%;overflow: auto;}
-        #chat-info{overflow: auto;}
-        #Self-info-2{height: 40%;overflow: auto;padding-top: 5px}
+        #Self-info-1{height: 20%;overflow: auto;font-size: 10px}
+        #Self-info-2{height: 50%;overflow: auto;padding-top: 5px;}
+        #Self-info-3{border-top:1px solid #000}
         #Id-1{position: relative;float: left;width: 50%;}
         #Id-2{position: relative;float: left;width: 50%;}
         .timer{font-size: 30px;}
@@ -36,6 +36,7 @@
             <p>4名普通村民</p>
         </div>
         <div id="Game-info-2">
+            <div class="r1">
             <p>当前信息：</p>
             {% if wolf_move %}
                 <p class="Game-info-2-text">夜晚，狼人行动，其余玩家请等待</p>
@@ -61,8 +62,10 @@
             {% if vote_move %}
                 <p class="Game-info-2-text">白天，公投阶段，请选择放逐目标</p>
             {% endif%}
+                </div>
         </div>
         <div id="Game-info-3">
+            <div class="r2">
             <p>获得信息：</p>
             <p>{{deathLastNight}}号玩家已经死亡</p>
             <span id="piao-0"></span>
@@ -70,6 +73,7 @@
             <span id="piao-101"></span>
             <p id="yourdeath"></p>
             <p id="gameover"></p>
+                </div>
         </div>
         <div id="Game-info-4">
             <span class="timer">倒计时：</span><span id="time" class="timer"></span><span class="timer">秒</span>
@@ -82,46 +86,53 @@
             <span>若你是好人，请找出全部隐藏的狼人</span><br>
             <span>若你是狼人，请隐藏身份，杀死全部神民或平民</span>
         </div>
-        <div>
+        <div id="A1">
             <canvas id="MainCanvas" width="600" height="500">
             </canvas>
         </div>
-        <form action="/post_game/" method="post">
+        <div id="A2">
+            <div class="r5">
+        <form action="/post_game/" method="post" target="norefresh2">
             {% csrf_token %}
             <div id="User-action">
             </div>
+            </div>
         </form>
+        <iframe  style="width:0; height:0; margin-top:-10px;"  name="norefresh2"></iframe>
+            </div>
     </div>
     <div id="Self-info">
         <div id="Self-info-1">
             <div id="chat-info">
                 <div class = "list-group-item">
                 {% for chat in mchats %}
-                <h4 class="list-group-item-heading">{{chat.sender}}:{{chat.content}}</h4>
-                <p class="list-group-item-text">{{chat.time}}</p>
+                <p class="list-group-item-heading" style="font-size: 10px">{{chat.sender}}:{{chat.content}}</p>
+                <p class="list-group-item-text" style="font-size:5px;">{{chat.time}}</p>
                 <input type="hidden" class="chat_id" value="{{chat.id}}"/>
                 <br>
                 {% endfor %}
             </div>
-
-            <form method="post" action="/post_chat/">
+        </div>
+        </div>
+        <div id="Self-info-2">
+            <form method="post" action="/post_chat/" target="norefresh">
                 {% csrf_token %}
                 <textarea id="chat-input" class="form-control" name = 'chat_content'></textarea>
                 <input id="chat-button" class="btn btn-info btn-lg" type = 'submit' name = 'submit' value="发送"/>
             </form>
-        </div>
-        </div>
-        <div id="Self-info-2">
+            <iframe  style="width:0; height:0; margin-top:-10px;"  name="norefresh"></iframe>
             <div id="video"></div>
-            <button type="button" class="btn btn-default" id="btn-dadianhua">打电话</button>
-            <button type="button" class="btn btn-default" id="btn-guadianhua">挂电话</button>
+            <button type="button" class="btn btn-default" id="btn-dadianhua">开始视频通讯</button>
+            <button type="button" class="btn btn-default" id="btn-guadianhua">结束视频通讯</button>
         </div>
         <div id="Self-info-3">
+            <div class="r6">
             <div id="Id-1"><p id="Id-identity"></p><p id="Id-seat"></p></div>
             <div id="Id-2">
                 <span id="Skill-1"></span><br>
-                <span id="Skill-2"></span>
+                <span id="Skill-2" style="overflow:auto;"></span>
             </div>
+                </div>
         </div>
     </div>
     <div id = "sys" hidden>
@@ -133,7 +144,11 @@
         {% endfor %}
     </div>
 </body>
+<div class="r3">
 <script type="text/javascript">
+    window.onload = function(){
+        setInterval(function(){refresh()},5000);
+    }
     function Circle(x, y, radius) {
         this.x = x;
         this.y = y;
@@ -156,6 +171,7 @@
     var suspects = ["未知","村民","狼人","预言家","女巫","猎人","白痴"];
     var circles = [];
     var players = [];
+    var wolves = [];
     var R = 160;
     var r = 30;
     var selectCircle = null;
@@ -169,7 +185,7 @@
     myself.name = "{{username}}";
     var myseat = -1;
     var isdeath = false;
-    console.log(myself.name);
+    var ws = new WebSocket("ws://59.66.139.41:4000");
 
     //创建游戏玩家
     for(var i=0;i<GamePlayerNumber;i++)
@@ -191,6 +207,9 @@
     {% for user in userList %}
         players[{{user.seat}}].name = "{{user.user.username}}";
         players[{{user.seat}}].identity = "{{user.character_name}}";
+        if(players[{{user.seat}}].identity == 'WEREWOLF'){
+        wolves.push({{user.seat}});
+    }
     {% endfor %}
 
 
@@ -203,6 +222,7 @@
             break;
         }
     }
+    function recall(){
     $('#Id-identity').append("你的身份是："+myself.identity);
     $('#Id-seat').append("你的座位是："+myseat);
 
@@ -215,6 +235,7 @@
         isdeath = true;
         $('#yourdeath').append("你死了");
     }
+
     if(!isdeath){
     if(myself.identity == 'VILLEGER')
     {
@@ -298,7 +319,6 @@
 
     }
 
-
     $('#piao-0').append("放逐投票:<br>");
     for(i=0;i<GamePlayerNumber;i++)
     {
@@ -348,7 +368,19 @@
         $('#gameover').append('游戏结束， 好人获胜');
         $('#Game-info-2-text').append('游戏结束， 好人获胜');
     }
-
+        if(myself.identity == 'WEREWOLF'){
+        ws.onmessage = function(ebt){
+            $('#Skill-2').append(''+ebt.data);
+        }
+        $('#Skill-2').append("<textarea id='win'></textarea><button type='button' id='wb'>团队聊天</button>");
+        $('#wb').click(function () {
+            ws.send(''+$("#win").val());
+            $("#win").val("");
+        })
+        }
+    }
+    var times = 1;
+    recall();
     Draw();
     function Draw(){
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -359,6 +391,14 @@
             if(players[i].alive == "False"){
                 circle.status = -1;;
             }
+            if(myself.identity == 'WEREWOLF'){
+                for(var j=0;j<4;j++)
+                {
+                    if(wolves[j] == i)
+                        circle.status = 3;
+                }
+            }
+
             if({{idiotShow}} != -1){
                 if(players[i].identity == "IDIOT")
                     circle.status = 2;
@@ -371,6 +411,8 @@
                 ctx.fillStyle = "#ADFF2F";
             else if(circle.status == 2)
                 ctx.fillStyle = "#8B8B83";
+            else if(circle.status == 3)
+                ctx.fillStyle = "#0080ee";
             ctx.arc(circle.x,circle.y,r,0,2*Math.PI,true);
             if (circle.isSelected) {
                 ctx.lineWidth = 5;
@@ -455,30 +497,6 @@
         e.preventDefault();
     };
 
-
-
-    /*document.getElementById("btn-kill").onclick = function(e){
-        clickType = 2;
-    };
-    document.getElementById("btn-police").onclick = function(e){
-        clickType = 1;
-    };
-    document.getElementById("btn-out").onclick = function(e){
-        clickType = 2;
-    };
-    document.getElementById("btn-seer").onclick = function(e){
-        clickType = 1;
-    };
-    document.getElementById("btn-treat").onclick = function(e){
-        clickType = 1;
-    };
-    document.getElementById("btn-poison").onclick = function(e){
-        clickType = 2;
-    };
-    document.getElementById("btn-gun").onclick = function(e){
-        clickType = 2;
-    };*/
-
     function updateMsg(){
     $.post(
         "/get_chat/",
@@ -487,9 +505,11 @@
         },
         function(data){
            $('.list-group-item').append(data);
+            $('#chat-info').scrollTop($('#chat-info')[0].scrollHeight);
+            $('#Self-info-1').scrollTop($('#Self-info-1')[0].scrollHeight);
         }
     );
-        setTimeout("updateMsg()", 3000);
+        setTimeout("updateMsg()", 5000);
     }
     updateMsg();
     function updateMsg1(){
@@ -517,7 +537,7 @@
              //   location.reload();
         }
     );
-        setTimeout("updateMsg1()", 3000);
+        setTimeout("updateMsg1()", 5000);
     }
     updateMsg1();
 
@@ -564,6 +584,24 @@
         second--;
     }
     setInterval(function(){timer()},1000);
+    function refresh(){
+        $('.r1').load(location.href + " .r1",function(){
+            $('.r2').load(location.href + " .r2",function(){
+                     $('.r5').load(location.href + " .r5",function(){
+                          $('.r6').load(location.href + " .r6",function(){
+                               $('.r3').load(location.href + " .r3",function(){
+                                   if(times == 1 || times % 32 == 2)
+                                   {
+                                       recall();
+                                   }
+                                   console.log(""+times);times++
+                               });
+                          });
+                    });
+            })
+        });
+    }
+
 
     var video_out = $('#video');
     var all_recv_numbers = [];
@@ -610,8 +648,8 @@ phone.ready(function () {
     }
 }
     function hangup() {
-    phone.hangup();
-}
-
+        phone.hangup();
+    }
 </script>
+    </div>
 </html>
