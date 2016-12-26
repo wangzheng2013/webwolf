@@ -74,6 +74,8 @@ def game_api(request):
     hunterGun = game.AbilityHunter() # True 表示猎人能开枪
     voters = []
     speaker = 0
+    iswolf = -1
+    seerTarget = -1
     for chat in chats:
         system_command = eval(chat.content)
         if system_command['command'] == 'Witch':
@@ -243,6 +245,10 @@ def game_api(request):
             iswolf = system_command['isWolf']
         else:
             iswolf = -1
+        if system_command.has_key('seerTarget'):
+            seerTarget = system_command['seerTarget']
+        else:
+            seerTarget = -1
     votes0 = userVote.objects.filter(gameId = 1, day = 0)
     votes100 = userVote.objects.filter(gameId = 1, day = 100)
     votes101 = userVote.objects.filter(gameId = 1, day = 101)
@@ -409,9 +415,11 @@ def post_game(request):
                 if game.getDay() == 1:
                     tmp['command'] = 'Police'
                     tmp['isWolf'] = isWolf
+                    tmp['seerTarget'] = target
                 else:
                     tmp['command'] = 'Day'
                     tmp['isWolf'] = isWolf
+                    tmp['seerTarget'] = target
                 syscommand.content = str(tmp)
                 syscommand.save()
 
@@ -533,7 +541,13 @@ def post_game(request):
                     vote.day = 101
                 vote.save()
                 votes = userVote.objects.filter(gameId = gameId, day = vote.day)
-                if len(votes) == game.getAliveNum():
+
+                system_command = eval(SystemCommand.objects.filter(gameId = gameId)[0].content)
+                UpP = 0
+                for i in range(12):
+                    if system_command['state'][i] == '0':
+                        UpP = UpP + 1
+                if (command == u'投票' and len(votes) == game.getAliveNum()) or (command == u'警上投票' and len(votes) >= UpP):
                     # 所有人都投票完毕
                     exileP = -1
                     if command == u'警上投票':
@@ -620,6 +634,7 @@ def post_game(request):
                     syscommand.save()
             gameInfo.content = game.gameInfoEncode()
             gameInfo.save()
-        return HttpResponseRedirect(response)
+        #return HttpResponseRedirect(response)
+        return HttpResponse()
     else:
         raise Http404

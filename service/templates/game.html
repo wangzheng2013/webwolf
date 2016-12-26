@@ -410,6 +410,7 @@
     };
 
     var flag = true;
+    var command_last = '';
     function updateMsg(){
         $.post(
             "/get_chat/",
@@ -434,8 +435,13 @@
         },
         function(data){
             $('#sys').append(data);
+            if (command_last == data.command){
+                if (!(data.command != 'Werewolf' && data.command != 'Seer' && data.command != 'Witch' && data.command != 'Vote' && data.command != 'PoliceVote'))
+                    return;
+            }
             $('#User-action').empty();
             $('#Game-info-2-text').empty();
+            command_last = data.command;
             if (data.command == 'Werewolf'){
                 //if (myself.identity =='WEREWOLF') {
                     $('#User-action').append("<input type = 'number' id='input-number' name = 'target'value='0'/>");
@@ -477,7 +483,7 @@
             }*/
             if (data.command == 'Police'){
                 if(myself.identity == 'SEER')
-                    $('#User-action').append("true为是狼人,false为不是狼人,他是{{iswolf}}<br>");
+                    $('#User-action').append("true为是狼人,false为不是狼人,{{seerTarget}}号玩家的身份是{{iswolf}}<br>");
                 $('#User-action').append("<input type = 'number' name = 'voter' value='"+ myseat +"' hidden/>");
                 $('#User-action').append("<input type = 'submit' name = 'action' value='上警'/>");
                 $('#User-action').append("<input type = 'submit' name = 'action' id='btn-bushangjing'value='不上警'/>");
@@ -485,6 +491,7 @@
             }
             if (data.command == 'PoliceSpeak' || data.command == 'Speak'){
                  //if({{speaker}} == myseat)
+                    $("#User-action").append("<p>" + data.speaker +"</p>");
                     $("#User-action").append("<input type = 'submit' name = 'action' id='btn-guo'value='过'/>");
                 $('#Game-info-2-text').append('白天，请{{speaker}}号发言');
             }
@@ -510,7 +517,7 @@
             }
         }
         );
-        setTimeout("updateMsg1()", 5000);
+        setTimeout("updateMsg1()", 1000);
     }
     updateMsg1();
 
@@ -554,7 +561,7 @@
         $('#time').text(second);
         second--;
     }
-    setInterval(function(){timer()},1000);
+    setInterval(function(){timer()},3000);
 
 
     var video_out = $('#video');

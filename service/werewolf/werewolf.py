@@ -43,16 +43,16 @@ class werewolf_character():
 
     character = CHARACTER.NULL
     alive = True
-    death_noticed = True
+    death_noticed = -1
     def __init__(self, character):
         if type(character) == self.CHARACTER:
             self.alive = True
             self.character = character
-            self.death_noticed = True
+            self.death_noticed = -1
         if type(character) == int:
             self.alive = True
             self.character = self.CHARACTER(character)
-            self.death_noticed = True
+            self.death_noticed = -1
         if type(character) == str:
             dic = eval(character)
             self.alive = dic['alive']
@@ -174,7 +174,10 @@ class werewolf_game():
         if index < 0:
             return
         self.character[index].alive = False
-        self.character[index].death_noticed = (flag == werewolf_character.DEATH.EXILE) # 白天死亡不需要进行死亡宣布
+        if (flag == werewolf_character.DEATH.EXILE):
+            self.character[index].death_noticed =  -1# 白天死亡不需要进行死亡宣布
+        else:
+            self.character[index].death_noticed =  self.__day
         if (self.character[index].isHunter()):
             # 猎人死亡
             if flag != werewolf_character.DEATH.POISONED_BY_WITCH:
@@ -194,8 +197,7 @@ class werewolf_game():
     def getAllDeath(self):
         ans = []
         for i in range(self.__num):
-            if (not self.character[i].death_noticed) and (not self.character[i].alive):
-                self.character[i].death_noticed = True
+            if (self.character[i].death_noticed == self.__day) and (not self.character[i].alive):
                 ans.append(i)
         return ans
 
@@ -262,7 +264,7 @@ class werewolf_game():
             if (self.character[i].isSeer()) and (self.character[i].alive):
                 tmp = tmp + 1
         if (tmp == 0):
-            return
+            return -2
         seePlayer = target
         self.log.addLog('seer decided to predict %dth player' % seePlayer)
         return self.character[target].isWolf()
@@ -426,11 +428,10 @@ class werewolf_game():
         self.log.addLog('day %d' % self.__day)
         minn_death = -1
         for i in range(self.__num):
-            if (not self.character[i].death_noticed) and (not self.character[i].alive):
+            if (self.character[i].death_noticed == self.__day) and (not self.character[i].alive):
                 self.log.addLog(u'God : 昨夜%d号玩家死亡' % i)
                 if self.__day == 1:
                     self.log.addLog("%dth player made a speech" % i)
-                self.character[i].death_noticed = True
                 if (minn_death == -1):
                     minn_death = i
         if minn_death == -1:
